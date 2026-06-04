@@ -1,0 +1,53 @@
+{% load static i18n %}
+
+<!DOCTYPE html>
+{% get_current_language as LANGUAGE_CODE %}
+<html lang="{{ LANGUAGE_CODE }}">
+    <head>
+        <meta charset="utf-8" />
+        <meta http-equiv="x-ua-compatible" content="ie=edge" />
+        <title>
+            {% block title %}
+                Nilpoint Demo
+            {% endblock title %}
+        </title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta name="description" content="Nilpoint Demo" />
+        <meta name="author" content="James Shuttleworth (@digehode)" />
+        {% block meta_extra %}
+        {% endblock meta_extra %}
+
+        <link rel="apple-touch-icon"
+              sizes="120x120"
+              href="{% static 'images/favicons/apple-touch-icon.png' %}" />
+        <link rel="icon"
+              type="image/png"
+              sizes="32x32"
+              href="{% static 'images/favicons/favicon-32x32.png' %}" />
+        <link rel="icon"
+              type="image/png"
+              sizes="16x16"
+              href="{% static 'images/favicons/favicon-16x16.png' %}" />
+        <link rel="manifest" href="{% static 'site.webmanifest' %}" />
+        <link rel="mask-icon"
+              href="{% static 'images/favicons/safari-pinned-tab.svg' %}"
+              color="#5bbad5" />
+        {% block css %}
+            <link href="{% static 'css/base.css' %}" rel="stylesheet" />
+        {% endblock css %}
+        {% block inline_css %}
+        {% endblock inline_css %}
+        {% block javascript %}
+            <script defer src="{% static 'js/base.js' %}"></script>
+        {% endblock javascript %}
+    </head>
+    <body>
+      {% block content %}
+        <p>Content goes here</p>
+
+      {% endblock content %}
+
+      {% block inline_javascript %}
+      {% endblock inline_javascript %}
+    </body>
+</html>
