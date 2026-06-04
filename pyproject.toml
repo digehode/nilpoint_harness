@@ -1,0 +1,7 @@
+[project]
+name = "nilpoint-demo"
+version = "0.1.0"
+description = "Django Point and Click"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = []
