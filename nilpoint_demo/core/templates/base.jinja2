@@ -42,7 +42,16 @@
         {% endblock javascript %}
     </head>
     <body>
+
+      {% if user.is_authenticated %}
+	<p>Logged in as: {{user.username}}. <a href="">Log Out</a></p>
+      {% else %}
+	<p><a href="{% url 'login' %}">Log In</a> or <a href="{% url 'newuser' %}">Sign Up</a></p>
+      {% endif %}
+
       {% block content %}
+
+
         <p>Content goes here</p>
 
       {% endblock content %}
