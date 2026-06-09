@@ -44,11 +44,24 @@
     <body>
 
       {% if user.is_authenticated %}
-	<p>Logged in as: {{user.username}}. <a href="">Log Out</a></p>
+	<form action="{% url 'logout' %}" method="post">
+
+	<p>Logged in as: {{user.username}}.
+
+  {% csrf_token %}
+  <button type="submit">Log Out</button>
+</form>
+</p>
       {% else %}
 	<p><a href="{% url 'login' %}">Log In</a> or <a href="{% url 'newuser' %}">Sign Up</a></p>
       {% endif %}
-
+      {% if messages %}
+	<ul class="messages">
+	  {% for message in messages %}
+	    <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+	  {% endfor %}
+	</ul>
+      {% endif %}
       {% block content %}
 
 

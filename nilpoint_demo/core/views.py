@@ -1,8 +1,9 @@
 # from django.contrib.auth.models import User
-from django.contrib.auth import authenticate, get_user_model, login
+from django.contrib.auth import authenticate, get_user_model, login, logout
 from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
 from django.shortcuts import redirect, render
 from django.views.generic import View
+from django.contrib import messages
 
 
 class BaseView(View):
@@ -36,6 +37,7 @@ class NewUserView(BaseView):
             User = get_user_model()
             new_user = User.objects.create_user(username=username, password=password)
             new_user.save()
+            messages.add_message(request, messages.INFO, f"User {username} created.")
             return redirect("login")
         else:
             print("Invalid form")
@@ -66,8 +68,14 @@ class LoginView(BaseView):
             user = authenticate(request=request, username=username, password=password)
             if not user:
                 print("No user")
+                messages.add_message(
+                    request,
+                    messages.INFO,
+                    "Couldn't log in with that username/password",
+                )
                 return redirect("login")
             print("Authenticated?")
+            messages.add_message(request, messages.INFO, f"Logged in as {user}")
             login(request, user)
             return redirect("home")
         else:
@@ -75,6 +83,15 @@ class LoginView(BaseView):
             username = form.cleaned_data.get("username")
             password = form.cleaned_data.get("password")
             print(f"Got u/p: {username}/{password}")
-
+            messages.add_message(
+                request, messages.INFO, "Couldn't log in with that username/password"
+            )
             print(f"[{form.errors}]")
         return redirect("login")
+
+
+class LogoutView(BaseView):
+    def post(self, request, *args, **kwargs):
+        logout(request)
+        messages.add_message(request, messages.INFO, "Logged Out")
+        return redirect("home")
