@@ -34,15 +34,17 @@
               href="{% static 'images/favicons/safari-pinned-tab.svg' %}"
               color="#5bbad5" />
         {% block css %}
-          <link href="{% static 'css/base.css' %}" rel="stylesheet" />
+
 	  <link rel="stylesheet" href="{% static 'css/pico-main/css/pico.min.css' %}">
+	  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css" integrity="sha512-2SwdPD6INVrV/lHTZbO2nodKhrnDdJK9/kg2XD1r9uGqPo1cUbujc+IYdlYdEErWNu69gVcYgdxlmVmzTWnetw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+	  <link href="{% static 'css/base.css' %}" rel="stylesheet" />
         {% endblock css %}
         {% block inline_css %}
         {% endblock inline_css %}
         {% block javascript %}
-	  <script src="https://cdn.jsdelivr.net/npm/htmx.org@2.0.10/dist/htmx.min.js" 
+	  <script src="https://cdn.jsdelivr.net/npm/htmx.org@2.0.10/dist/htmx.min.js"
 		  integrity="sha384-H5SrcfygHmAuTDZphMHqBJLc3FhssKjG7w/CeCpFReSfwBWDTKpkzPP8c+cLsK+V"
-		  crossorigin="anonymous"></script>	  
+		  crossorigin="anonymous"></script>
             <script defer src="{% static 'js/base.js' %}"></script>
         {% endblock javascript %}
     </head>
@@ -50,7 +52,7 @@
     {# Include csrf token in all requests #}
     <body hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
       <main class="container">
-	
+
 	<nav>
 	  <ul>
 	    <li><strong>Nilpoint</strong></li>
@@ -63,30 +65,42 @@
 	      <li>
 		Logged in as: {{user.username}}
 	      </li>
-	      
+
               <li>
 
-		<a href="#" 
-		   hx-post="{% url 'logout' %}" 
-		   hx-target="body" 
+		<a href="#"
+		   hx-post="{% url 'logout' %}"
+		   hx-target="body"
 		   class="nav-link">Log Out</a>
-		
+
 	      </li>
 	    {% else %}
 	      <li><a href="{% url 'login' %}">Log In</a></li><li><a href="{% url 'newuser' %}">Sign Up</a></li>
 	    {% endif %}
 	  </ul>
-	  
+
 	</nav>
-	
-	{% if messages %}
-	  <ul class="messages">
-	    {% for message in messages %}
-	      <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
-	    {% endfor %}
-	  </ul>
-	{% endif %}
-	
+
+
+{% if messages %}
+<!-- Absolute wrapper container that floats over your site layout -->
+<div id="django-toast-container">
+  {% for message in messages %}
+    <article class="django-toast {{ message.tags }}" role="alert">
+      <div class="toast-content">
+        {{ message }}
+      </div>
+      <!-- Pico CSS uses rel="prev" to naturally float close buttons right -->
+      <button rel="prev"
+              onclick="this.closest('article').remove();"
+              aria-label="Close alert">
+	      <i class="fa-solid fa-circle-xmark"></i>
+      </button>
+    </article>
+  {% endfor %}
+</div>
+{% endif %}
+
 	{% block content %}
           <p>Content goes here</p>
 	{% endblock content %}
@@ -94,6 +108,6 @@
 
       </main>
       {% block inline_javascript %}
-      {% endblock inline_javascript %}      
+      {% endblock inline_javascript %}
     </body>
 </html>

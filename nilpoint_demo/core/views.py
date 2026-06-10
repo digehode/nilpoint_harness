@@ -10,6 +10,7 @@ class BaseView(View):
     context = {}
 
     def _render(self, request):
+        print(self.context)
         return render(request, self.template_name, self.context)
 
     def get(self, request, *args, **kwargs):
@@ -30,18 +31,18 @@ class NewUserView(BaseView):
     def post(self, request, *args, **kwargs):
         form = UserCreationForm(request.POST)
         if form.is_valid():
-            print(form.cleaned_data)
             username = form.cleaned_data.get("username")
             password = form.cleaned_data.get("password1")
-            print(f"Creating user with u/p: {username}/{password}")
             User = get_user_model()
             new_user = User.objects.create_user(username=username, password=password)
             new_user.save()
-            messages.add_message(request, messages.INFO, f"User {username} created.")
+            messages.add_message(request, messages.SUCCESS, f"User {username} created.")
             return redirect("login")
-        else:
-            print("Invalid form")
-        return self.get(request, *args, **kwargs)
+        print(form.errors)
+        print(form.non_field_errors)
+        messages.add_message(request, messages.WARNING, "Unable to create user.")
+        self.context["form"] = form
+        return self._render(request)
 
 
 class LoginView(BaseView):
@@ -70,12 +71,12 @@ class LoginView(BaseView):
                 print("No user")
                 messages.add_message(
                     request,
-                    messages.INFO,
+                    messages.WARNING,
                     "Couldn't log in with that username/password",
                 )
                 return redirect("login")
             print("Authenticated?")
-            messages.add_message(request, messages.INFO, f"Logged in as {user}")
+            messages.add_message(request, messages.SUCCESS, f"Logged in as {user}")
             login(request, user)
             return redirect("home")
         else:
@@ -84,7 +85,7 @@ class LoginView(BaseView):
             password = form.cleaned_data.get("password")
             print(f"Got u/p: {username}/{password}")
             messages.add_message(
-                request, messages.INFO, "Couldn't log in with that username/password"
+                request, messages.WARNING, "Couldn't log in with that username/password"
             )
             print(f"[{form.errors}]")
         return redirect("login")
