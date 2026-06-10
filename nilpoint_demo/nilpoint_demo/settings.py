@@ -11,6 +11,9 @@ https://docs.djangoproject.com/en/6.0/ref/settings/
 """
 
 from pathlib import Path
+import environ
+
+env = environ.Env()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -20,7 +23,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = "django-insecure-w0yc5x5dsa=$dwvs7h1)#+f)^avn949vnn)4oq1t)#6xwn1$gi"  # noqa: E501
+SECRET_KEY = (
+    "django-insecure-w0yc5x5dsa=$dwvs7h1)#+f)^avn949vnn)4oq1t)#6xwn1$gi"  # noqa: E501
+)
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -116,5 +121,28 @@ USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/6.0/howto/static-files/
-
+DATA_DIR = Path(env("DATA_DIR", default=BASE_DIR.joinpath("var")))
 STATIC_URL = "static/"
+# if DEBUG:
+#     STATIC_ROOT = DATA_DIR / "static"
+#     STATIC_ROOT.mkdir(parents=True, exist_ok=True)
+#     STORAGES = {
+#         "default": {
+#             "BACKEND": env(
+#                 "DEFAULT_STORAGE",
+#                 default="django.core.files.storage.FileSystemStorage",  # noqa: E501
+#             ),
+#         },
+#         "staticfiles": {
+#             "BACKEND": env(
+#                 "STATICFILES_STORAGE",
+#                 default="django.contrib.staticfiles.storage.ManifestStaticFilesStorage",  # noqa: E501
+#             ),
+#         },
+#     }
+
+#     STATICFILES_FINDERS = [
+#         # Default finders
+#         "django.contrib.staticfiles.finders.FileSystemFinder",
+#         "django.contrib.staticfiles.finders.AppDirectoriesFinder",
+#     ]

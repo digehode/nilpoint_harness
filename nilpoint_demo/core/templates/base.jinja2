@@ -4,7 +4,7 @@
 {% get_current_language as LANGUAGE_CODE %}
 <html lang="{{ LANGUAGE_CODE }}">
     <head>
-        <meta charset="utf-8" />
+      <meta charset="utf-8" />
         <meta http-equiv="x-ua-compatible" content="ie=edge" />
         <title>
             {% block title %}
@@ -12,6 +12,7 @@
             {% endblock title %}
         </title>
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<meta name="color-scheme" content="light dark">
         <meta name="description" content="Nilpoint Demo" />
         <meta name="author" content="James Shuttleworth (@digehode)" />
         {% block meta_extra %}
@@ -33,43 +34,66 @@
               href="{% static 'images/favicons/safari-pinned-tab.svg' %}"
               color="#5bbad5" />
         {% block css %}
-            <link href="{% static 'css/base.css' %}" rel="stylesheet" />
+          <link href="{% static 'css/base.css' %}" rel="stylesheet" />
+	  <link rel="stylesheet" href="{% static 'css/pico-main/css/pico.min.css' %}">
         {% endblock css %}
         {% block inline_css %}
         {% endblock inline_css %}
         {% block javascript %}
+	  <script src="https://cdn.jsdelivr.net/npm/htmx.org@2.0.10/dist/htmx.min.js" 
+		  integrity="sha384-H5SrcfygHmAuTDZphMHqBJLc3FhssKjG7w/CeCpFReSfwBWDTKpkzPP8c+cLsK+V"
+		  crossorigin="anonymous"></script>	  
             <script defer src="{% static 'js/base.js' %}"></script>
         {% endblock javascript %}
     </head>
-    <body>
 
-      {% if user.is_authenticated %}
-	<form action="{% url 'logout' %}" method="post">
+    {# Include csrf token in all requests #}
+    <body hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
+      <main class="container">
+	
+	<nav>
+	  <ul>
+	    <li><strong>Nilpoint</strong></li>
+	  </ul>
+	  <ul>
+	    <li><a href="#" role="button" class="outline secondary">Toggle dark mode</a></li>
+	  </ul>
+	  <ul>
+	    {% if user.is_authenticated %}
+	      <li>
+		Logged in as: {{user.username}}
+	      </li>
+	      
+              <li>
 
-	<p>Logged in as: {{user.username}}.
+		<a href="#" 
+		   hx-post="{% url 'logout' %}" 
+		   hx-target="body" 
+		   class="nav-link">Log Out</a>
+		
+	      </li>
+	    {% else %}
+	      <li><a href="{% url 'login' %}">Log In</a></li><li><a href="{% url 'newuser' %}">Sign Up</a></li>
+	    {% endif %}
+	  </ul>
+	  
+	</nav>
+	
+	{% if messages %}
+	  <ul class="messages">
+	    {% for message in messages %}
+	      <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+	    {% endfor %}
+	  </ul>
+	{% endif %}
+	
+	{% block content %}
+          <p>Content goes here</p>
+	{% endblock content %}
 
-  {% csrf_token %}
-  <button type="submit">Log Out</button>
-</form>
-</p>
-      {% else %}
-	<p><a href="{% url 'login' %}">Log In</a> or <a href="{% url 'newuser' %}">Sign Up</a></p>
-      {% endif %}
-      {% if messages %}
-	<ul class="messages">
-	  {% for message in messages %}
-	    <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
-	  {% endfor %}
-	</ul>
-      {% endif %}
-      {% block content %}
 
-
-        <p>Content goes here</p>
-
-      {% endblock content %}
-
+      </main>
       {% block inline_javascript %}
-      {% endblock inline_javascript %}
+      {% endblock inline_javascript %}      
     </body>
 </html>
