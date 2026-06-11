@@ -55,31 +55,35 @@
     <body hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
       <main class="container">
 
-	<nav>
+	<nav id="site-nav">
 	  <ul>
 	    <li><strong>Nilpoint</strong></li>
 	  </ul>
-	  <ul>
-	    <li><a href="#" role="button" class="outline secondary" onclick="toggle_dark()">Toggle dark mode</a></li>
-	  </ul>
-	  <ul>
-	    {% if user.is_authenticated %}
-	      <li>
-		Logged in as: {{user.username}}
-	      </li>
 
-              <li>
+	  <ul><li>
+	  <details class="dropdown">
+	    <summary role="button">
+	     <i class="fa-solid fa-bars"></i> {% if user.is_authenticated %}{{user.username}} {% else %}Logged Out{% endif %}
+	    </summary>
+	    <ul>
 
-		<a href="#"
-		   hx-post="{% url 'logout' %}"
-		   hx-target="body"
-		   class="nav-link">Log Out</a>
 
-	      </li>
+	      {% if user.is_authenticated %}
+		<li>
+		  <a href="#"
+		     hx-post="{% url 'logout' %}"
+		     hx-target="body"
+		     class="nav-link"><i class="fa-solid fa-arrow-right-from-bracket"></i> Log Out</a>
+
+		</li>
 	    {% else %}
-	      <li><a href="{% url 'login' %}">Log In</a></li><li><a href="{% url 'newuser' %}">Sign Up</a></li>
+	      <li><a href="{% url 'login' %}"><i class="fa-solid fa-user-check"></i>Log In</a></li>
+	      <li><a href="{% url 'newuser' %}"><i class="fa-solid fa-person-circle-plus"></i>Sign Up</a></li>
 	    {% endif %}
-	  </ul>
+	    <li><a href="#" onclick="toggle_dark()"><i class="fa-solid fa-circle-half-stroke"></i>Toggle dark mode</a></li>
+	    </ul>
+	  </details>
+	  </li></ul>
 
 	</nav>
 

@@ -4,66 +4,87 @@
 
 /* Floating system overlay container */
 #django-toast-container {
-	position: fixed;
-	top: 1rem;
-	right: 1rem;
-	z-index: 9999;
-	width: 100%;
-	max-width: 400px;
-	display: flex;
-	flex-direction: column;
-	gap: 0.75rem;
-	pointer-events: none; /* Allows user to click behind empty gaps */
+    position: fixed;
+    top: 1rem;
+    right: 1rem;
+    z-index: 9999;
+    width: 100%;
+    max-width: 400px;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    pointer-events: none; /* Allows user to click behind empty gaps */
 }
 
 /* Base toast configuration styling */
 .django-toast {
-	pointer-events: auto; /* Reactivates click events for the active card */
-	margin-bottom: 0 !important;
-	padding: 0.75rem 1rem;
-	display: flex;
-	align-items: center;
-	justify-content: space-between;
-	box-shadow: var(--pico-box-shadow);
-	border-left: 5px solid transparent;
+    pointer-events: auto; /* Reactivates click events for the active card */
+    margin-bottom: 0 !important;
+    padding: 0.75rem 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    box-shadow: var(--pico-box-shadow);
+    border-left: 5px solid transparent;
 }
 
 /* Compact closer spacing overrides */
 .django-toast button[rel="prev"] {
-	margin: 0 0 0 1rem;
-	padding: 0;
-	width: auto;
-	background: transparent;
-	border: none;
-	color: var(--pico-muted-color);
+    margin: 0 0 0 1rem;
+    padding: 0;
+    width: auto;
+    background: transparent;
+    border: none;
+    color: var(--pico-muted-color);
 }
 
 /* Color palettes dynamically applied using Pico CSS theme variables */
 .django-toast.success {
-	border-left-color: var(--pico-ins-color);
-	background-color: rgba(var(--pico-ins-color), 0.1);
+    border-left-color: var(--pico-ins-color);
+    background-color: rgba(var(--pico-ins-color), 0.1);
 }
 .django-toast.error {
-	border-left-color: var(--pico-del-color);
-	background-color: rgba(var(--pico-del-color), 0.1);
+    border-left-color: var(--pico-del-color);
+    background-color: rgba(var(--pico-del-color), 0.1);
 }
 .django-toast.warning {
-	border-left-color: #ff9800;
-	background-color: rgba(255, 152, 0, 0.1);
+    border-left-color: #ff9800;
+    background-color: rgba(255, 152, 0, 0.1);
 }
 .django-toast.info {
-	border-left-color: var(--pico-primary-background);
-	background-color: rgba(var(--pico-primary-background), 0.1);
+    border-left-color: var(--pico-primary-background);
+    background-color: rgba(var(--pico-primary-background), 0.1);
 }
 
 /* ------- /Messages --------- */
 
+/* ------- forms ------- */
 ul.errorlist {
-	padding: 0.5rem;
+    padding: 0.5rem;
 }
 ul.errorlist li {
-	color: var(--pico-del-color);
-	border-left: 5px solid var(--pico-del-color);
-	list-style-type: none; /* Remove bullets */
-	padding-left: 1rem;
+    color: var(--pico-del-color);
+    border-left: 5px solid var(--pico-del-color);
+    list-style-type: none; /* Remove bullets */
+    padding-left: 1rem;
 }
+
+/* ------- /forms ------- */
+
+/* ------- nav ------- */
+#site-nav details ul li i {
+    float: right;
+}
+
+#site-nav details {
+    min-width: 15rem;
+}
+
+#site-nav details ul li {
+    border-bottom: 2px dashed rgba(128, 128, 128, 0.5);
+}
+
+#site-nav details ul li:last-child {
+    border-bottom: none;
+}
+/* ------- /nav ------- */
