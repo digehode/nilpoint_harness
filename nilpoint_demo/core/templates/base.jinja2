@@ -35,7 +35,7 @@
               color="#5bbad5" />
         {% block css %}
 
-	  <link rel="stylesheet" href="{% static 'css/pico-main/css/pico.min.css' %}">
+	  <link rel="stylesheet" href="{% static 'pico-main/css/pico.min.css' %}">
 	  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css" integrity="sha512-2SwdPD6INVrV/lHTZbO2nodKhrnDdJK9/kg2XD1r9uGqPo1cUbujc+IYdlYdEErWNu69gVcYgdxlmVmzTWnetw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 	  <link href="{% static 'css/base.css' %}" rel="stylesheet" />
         {% endblock css %}
@@ -44,8 +44,10 @@
         {% block javascript %}
 	  <script src="https://cdn.jsdelivr.net/npm/htmx.org@2.0.10/dist/htmx.min.js"
 		  integrity="sha384-H5SrcfygHmAuTDZphMHqBJLc3FhssKjG7w/CeCpFReSfwBWDTKpkzPP8c+cLsK+V"
-		  crossorigin="anonymous"></script>
-            <script defer src="{% static 'js/base.js' %}"></script>
+		  crossorigin="anonymous">
+	  </script>
+	  <script defer src="{% static 'pico-main/scripts/minimal-theme-switcher.js' %}"></script>
+          <script defer src="{% static 'js/base.js' %}"></script>
         {% endblock javascript %}
     </head>
 
@@ -58,7 +60,7 @@
 	    <li><strong>Nilpoint</strong></li>
 	  </ul>
 	  <ul>
-	    <li><a href="#" role="button" class="outline secondary">Toggle dark mode</a></li>
+	    <li><a href="#" role="button" class="outline secondary" onclick="toggle_dark()">Toggle dark mode</a></li>
 	  </ul>
 	  <ul>
 	    {% if user.is_authenticated %}
