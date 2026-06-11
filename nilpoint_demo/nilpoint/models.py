@@ -14,6 +14,10 @@ class Game(models.Model):
     """
 
     name = "Generic Game"
+    description = "This is a generic game. You should be subclassing "
+    "this to create actual games. Or, if you have and you're still seing "
+    "this, make use of the 'get_real_instance' method to get the downcast "
+    "version of this object."
 
     instance_name = models.CharField(
         max_length=100,

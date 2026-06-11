@@ -1,4 +1,4 @@
-from .models import Game
+from .models import Game, Player
 
 
 class NilpointContext:
@@ -15,6 +15,7 @@ class NilpointContext:
         #     self.user_role = "Guest"
 
         self.games = [game.get_real_instance() for game in Game.objects.all()]
+        self.player = Player.objects.get(user=request.user)
 
 
 def nilpoint_context(request):
