@@ -79,3 +79,6 @@ class PlayerCharacter(models.Model):
     player = models.ForeignKey(
         Player, null=False, on_delete=models.CASCADE, related_name="characters"
     )
+    game = models.ForeignKey(
+        Game, null=False, on_delete=models.CASCADE, related_name="player_characters"
+    )

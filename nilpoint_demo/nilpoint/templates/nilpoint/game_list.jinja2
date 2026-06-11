@@ -1,0 +1,9 @@
+{% partialdef game_list %}
+<div class="nilpoint nilpoint-game-list">
+<h1>Game List</h1>
+<ul>
+  {% for game in nilpoint.games %}
+    <li>{{game.instance_name}} ({{game.name}})</li>
+  {% endfor %}
+</ul>
+{% endpartialdef %}
