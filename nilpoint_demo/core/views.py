@@ -4,6 +4,7 @@ from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
 from django.shortcuts import redirect, render
 from django.views.generic import View
 from django.contrib import messages
+from nilpoint.models import Player
 
 
 class BaseView(View):
@@ -36,6 +37,8 @@ class NewUserView(BaseView):
             User = get_user_model()
             new_user = User.objects.create_user(username=username, password=password)
             new_user.save()
+            new_player = Player(user=new_user)
+            new_player.save()
             messages.add_message(request, messages.SUCCESS, f"User {username} created.")
             return redirect("login")
         print(form.errors)
