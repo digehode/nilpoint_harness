@@ -1,8 +1,9 @@
 {% extends "base.jinja2" %}
-
 {% block content %}
-  <p>Nilpoint demo main page</p>
-
-  {% include "nilpoint/game_info.jinja2#game_list" %}
-  {% include "nilpoint/player_info.jinja2#player_characters" %}
+    <p>Nilpoint demo main page</p>
+    {% include "nilpoint/game_info.jinja2#game_list" %}
+    {% include "nilpoint/player_info.jinja2#player_characters" %}
+    {% with game=nilpoint.games.0 %}
+        {% include "nilpoint/game_info.jinja2#game_info" %}
+    {% endwith %}
 {% endblock content %}

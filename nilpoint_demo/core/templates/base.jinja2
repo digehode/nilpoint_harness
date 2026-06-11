@@ -1,10 +1,9 @@
 {% load static i18n %}
-
 <!DOCTYPE html>
 {% get_current_language as LANGUAGE_CODE %}
 <html lang="{{ LANGUAGE_CODE }}">
     <head>
-      <meta charset="utf-8" />
+        <meta charset="utf-8" />
         <meta http-equiv="x-ua-compatible" content="ie=edge" />
         <title>
             {% block title %}
@@ -12,12 +11,12 @@
             {% endblock title %}
         </title>
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-	<meta name="color-scheme" content="light dark">
+        <meta name="color-scheme" content="light dark">
         <meta name="description" content="Nilpoint Demo" />
+        <meta name="keywords" content="game adventure" />
         <meta name="author" content="James Shuttleworth (@digehode)" />
         {% block meta_extra %}
         {% endblock meta_extra %}
-
         <link rel="apple-touch-icon"
               sizes="120x120"
               href="{% static 'images/favicons/apple-touch-icon.png' %}" />
@@ -34,89 +33,90 @@
               href="{% static 'images/favicons/safari-pinned-tab.svg' %}"
               color="#5bbad5" />
         {% block css %}
-
-	  <link rel="stylesheet" href="{% static 'pico-main/css/pico.min.css' %}">
-	  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css" integrity="sha512-2SwdPD6INVrV/lHTZbO2nodKhrnDdJK9/kg2XD1r9uGqPo1cUbujc+IYdlYdEErWNu69gVcYgdxlmVmzTWnetw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
-	  <link href="{% static 'css/base.css' %}" rel="stylesheet" />
+            <link rel="stylesheet" href="{% static 'pico-main/css/pico.min.css' %}">
+            <link rel="stylesheet"
+                  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css"
+                  integrity="sha512-2SwdPD6INVrV/lHTZbO2nodKhrnDdJK9/kg2XD1r9uGqPo1cUbujc+IYdlYdEErWNu69gVcYgdxlmVmzTWnetw=="
+                  crossorigin="anonymous"
+                  referrerpolicy="no-referrer" />
+            <link href="{% static 'css/base.css' %}" rel="stylesheet" />
         {% endblock css %}
         {% block inline_css %}
         {% endblock inline_css %}
         {% block javascript %}
-	  <script src="https://cdn.jsdelivr.net/npm/htmx.org@2.0.10/dist/htmx.min.js"
-		  integrity="sha384-H5SrcfygHmAuTDZphMHqBJLc3FhssKjG7w/CeCpFReSfwBWDTKpkzPP8c+cLsK+V"
-		  crossorigin="anonymous">
-	  </script>
-	  <script defer src="{% static 'pico-main/scripts/minimal-theme-switcher.js' %}"></script>
-          <script defer src="{% static 'js/base.js' %}"></script>
+            <script src="https://cdn.jsdelivr.net/npm/htmx.org@2.0.10/dist/htmx.min.js" integrity="sha384-H5SrcfygHmAuTDZphMHqBJLc3FhssKjG7w/CeCpFReSfwBWDTKpkzPP8c+cLsK+V" crossorigin="anonymous">
+            </script>
+            <script defer
+                    src="{% static 'pico-main/scripts/minimal-theme-switcher.js' %}"></script>
+            <script defer src="{% static 'js/base.js' %}"></script>
         {% endblock javascript %}
     </head>
-
     {# Include csrf token in all requests #}
     <body hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
-      <main class="container">
-
-	<nav id="site-nav">
-	  <ul>
-	    <li><strong>Nilpoint</strong></li>
-	  </ul>
-
-	  <ul><li>
-	  <details class="dropdown">
-	    <summary role="button">
-	     <i class="fa-solid fa-bars"></i> {% if user.is_authenticated %}{{user.username}} {% else %}Logged Out{% endif %}
-	    </summary>
-	    <ul>
-
-
-	      {% if user.is_authenticated %}
-		{% if user.is_staff %}
-		  <li><a href="{% url 'admin:index' %}"><i class="fa-solid fa-toolbox"></i>Admin Console</a></li>
-		{% endif %}
-		<li>
-		  <a href="#"
-		     hx-post="{% url 'logout' %}"
-		     hx-target="body"
-		     class="nav-link"><i class="fa-solid fa-arrow-right-from-bracket"></i> Log Out</a>
-
-		</li>
-	    {% else %}
-	      <li><a href="{% url 'login' %}"><i class="fa-solid fa-user-check"></i>Log In</a></li>
-	      <li><a href="{% url 'newuser' %}"><i class="fa-solid fa-person-circle-plus"></i>Sign Up</a></li>
-	    {% endif %}
-	    <li><a href="#" onclick="toggle_dark()"><i class="fa-solid fa-circle-half-stroke"></i>Toggle dark mode</a></li>
-	    </ul>
-	  </details>
-	  </li></ul>
-
-	</nav>
-
-
-{% if messages %}
-<!-- Absolute wrapper container that floats over your site layout -->
-<div id="django-toast-container">
-  {% for message in messages %}
-    <article class="django-toast {{ message.tags }}" role="alert">
-      <div class="toast-content">
-        {{ message }}
-      </div>
-      <!-- Pico CSS uses rel="prev" to naturally float close buttons right -->
-      <button rel="prev"
-              onclick="this.closest('article').remove();"
-              aria-label="Close alert">
-	      <i class="fa-solid fa-circle-xmark"></i>
-      </button>
-    </article>
-  {% endfor %}
-</div>
-{% endif %}
-
-	{% block content %}
-          <p>Content goes here</p>
-	{% endblock content %}
-
-
-      </main>
-      {% block inline_javascript %}
-      {% endblock inline_javascript %}
+        <main class="container">
+            <nav id="site-nav">
+                <ul>
+                    <li><strong>Nilpoint</strong></li>
+                </ul>
+                <ul>
+                    <li>
+                        <details class="dropdown">
+                            <summary role="button">Games</summary>
+                            {% include "nilpoint/game_info.jinja2#game_list" %}
+                        </details>
+                    </li>
+                    <li>
+                        <details class="dropdown">
+                            <summary role="button">
+                                <i class="fa-solid fa-bars"></i>
+                                {% if user.is_authenticated %}
+                                    {{ user.username }}
+                                {% else %}
+                                    Logged Out
+                                {% endif %}
+                            </summary>
+                            <ul>
+                                {% if user.is_authenticated %}
+                                    {% if user.is_staff %}
+                                        <li><a href="{% url 'admin:index' %}"><i class="fa-solid fa-toolbox"></i>Admin Console</a></li>
+                                    {% endif %}
+                                    <li>
+                                        <a href="#"
+                                           hx-post="{% url 'logout' %}"
+                                           hx-target="body"
+                                           class="nav-link"><i class="fa-solid fa-arrow-right-from-bracket"></i> Log Out</a>
+                                    </li>
+                                {% else %}
+                                    <li><a href="{% url 'login' %}"><i class="fa-solid fa-user-check"></i>Log In</a></li>
+                                    <li><a href="{% url 'newuser' %}"><i class="fa-solid fa-person-circle-plus"></i>Sign Up</a></li>
+                                {% endif %}
+                                <li><a href="#" onclick="toggle_dark()"><i class="fa-solid fa-circle-half-stroke"></i>Toggle dark mode</a></li>
+                            </ul>
+                        </details>
+                    </li>
+                </ul>
+            </nav>
+            {% if messages %}
+                <!-- Absolute wrapper container that floats over your site layout -->
+                <div id="django-toast-container">
+                    {% for message in messages %}
+                        <article class="django-toast {{ message.tags }}" role="alert">
+                            <div class="toast-content">{{ message }}</div>
+                            <!-- Pico CSS uses rel="prev" to naturally float close buttons right -->
+                            <button rel="prev"
+                                    onclick="this.closest('article').remove();"
+                                    aria-label="Close alert">
+                                <i class="fa-solid fa-circle-xmark"></i>
+                            </button>
+                        </article>
+                    {% endfor %}
+                </div>
+            {% endif %}
+            {% block content %}
+                <p>Content goes here</p>
+            {% endblock content %}
+        </main>
+        {% block inline_javascript %}
+        {% endblock inline_javascript %}
     </body>
 </html>
