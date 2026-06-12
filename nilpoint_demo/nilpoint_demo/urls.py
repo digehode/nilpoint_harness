@@ -21,4 +21,9 @@ from django.urls import include, path
 urlpatterns = [
     path("admin/", admin.site.urls),
     path("", include("core.urls")),
+    path("nilpoint/", include("nilpoint.urls", namespace="nilpoint")),
+    path(
+        "cypherpunkgame/<slug:nilpoint_slug>",
+        include("cypherpunk.urls", namespace="cyperpunkgame"),
+    ),
 ]

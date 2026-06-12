@@ -32,6 +32,12 @@ class Game(models.Model):
         help_text="Description of the game instance",
     )
 
+    nilpoint_slug = models.SlugField(
+        help_text="A unique string that identifies this game in URLs",
+        null=False,
+        unique=True,
+    )
+
     # Game type holds the subclass to which this can be downcast
     _game_type = models.CharField(max_length=50, editable=False)
 

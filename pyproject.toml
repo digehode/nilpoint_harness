@@ -10,7 +10,6 @@ dependencies = [
     "django-extensions>=4.1",
     "django-extras>=0.3",
     "ipython>=9.14.1",
-    "pre-commit>=4.6.0",
 ]
 
 # ==== black ====
@@ -29,3 +28,9 @@ known_first_party = [
 ]
 skip = ["venv/"]
 skip_glob = ["**/migrations/*.py"]
+
+[dependency-groups]
+dev = [
+    "pre-commit>=4.6.0",
+    "ruff>=0.15.17",
+]
