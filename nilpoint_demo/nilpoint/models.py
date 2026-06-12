@@ -2,6 +2,7 @@
 
 from django.contrib.auth import get_user_model
 from django.db import models
+from django.shortcuts import reverse
 
 
 class Game(models.Model):
@@ -56,6 +57,15 @@ class Game(models.Model):
 
     def __str__(self):
         return f"{self.get_real_instance().name} - {self.instance_name}"
+
+    def get_url(self):
+        if self.nilpoint_slug is not None and self.nilpoint_slug != "":
+            return reverse(
+                f"{self._game_type}:dispatch",
+                kwargs={"nilpoint_slug": self.nilpoint_slug},
+            )
+        else:
+            return "#"
 
 
 class Player(models.Model):

@@ -4,11 +4,32 @@ from .models import Game
 from django.http import HttpResponseNotFound, HttpResponse
 
 
-class NilpointDebugView(View):
-    """Debug view, can be used to drop in to places before the views
-    are ready, ensuring everythng else is doing what is expected"""
+class NilpointGameBasic(View):
+    """Super class for game views."""
+
+    _handlers = {"debug": "debug"}
+
+    def __init__(self, *args, **kwargs):
+        """Combine subclass handlers with the _handlers dict"""
+        if hasattr(self, "handlers"):
+            self._handlers.update(self.handlers)
+        super().__init__(*args, **kwargs)
 
     def get(self, request, *args, **kwargs):
+        """GET dispatcher"""
+        action = request.GET.get("action", None)
+        if action is None or action not in self._handlers:
+            return HttpResponse("Action required", content_type="text/plain")
+
+        return getattr(self, self._handlers[action])(request, args, kwargs)
+
+    def debug(self, request, *args, **kwargs):
+        """Debug view, can be used to drop in to places before the
+        views are ready, ensuring everythng else is doing what is
+        expected
+
+        """
+
         content = "Nilpoint Debug Page\n"
         content += "===================\n\n"
         content += f"{request.method} : {request.path}\n\n"
@@ -58,14 +79,10 @@ class NilpointGameDispatchView(View):
 
         slug = kwargs.get("nilpoint_slug")
         try:
-            game = Game.objects.get(nilpoint_slug=slug)
-            game = game.get_real_instance()
-            namespace = game._game_type
-
-            return redirect(f"{namespace}:dispatch", nilpoint_slug=game.nilpoint_slug)
+            game = Game.objects.get(nilpoint_slug=slug).get_real_instance()
 
         except Game.DoesNotExist:
             return HttpResponseNotFound(
                 f"We don't seem to have a game usingthe slig '{slug}'!"
             )
-        return redirect("home")
+        return redirect(game.get_url())

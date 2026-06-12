@@ -1,7 +1,7 @@
 {% partialdef game_list %}
     <ul>
         {% for game in nilpoint.games %}
-            <li>{{ game.instance_name }} ({{ game.name }})</li>
+            <li><a href="{{ game.get_url }}">{{ game.instance_name }} ({{ game.name }})</a></li>
         {% endfor %}
     </ul>
 {% endpartialdef %}
