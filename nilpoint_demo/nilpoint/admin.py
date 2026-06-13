@@ -1,11 +1,23 @@
 from django.contrib import admin
 
-from .models import Player, PlayerCharacter
+from .models import Player, PlayerCharacter, Game
 
 
 @admin.register(Player)
 class PlayerAdmin(admin.ModelAdmin):
     model = Player
+
+
+@admin.register(Game)
+class GameAdmin(admin.ModelAdmin):
+    model = Game
+    list_display = [
+        "instance_name",
+        "_game_type",
+        "instance_description",
+        "nilpoint_slug",
+        "get_url",
+    ]
 
 
 @admin.register(PlayerCharacter)

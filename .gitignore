@@ -9,3 +9,7 @@ wheels/
 # Virtual environments
 .venv
 *~
+/node_modules/
+/package-lock.json
+/package.json
+/nilpoint_demo/db.sqlite3
