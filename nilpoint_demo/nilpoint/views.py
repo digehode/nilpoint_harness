@@ -14,7 +14,15 @@ class NilpointGameBasic(View):
         """Combine subclass handlers with the _handlers dict"""
         if hasattr(self, "handlers"):
             self._handlers.update(self.handlers)
+        self.game = None
+        self.player_character = None
         super().__init__(*args, **kwargs)
+
+    def get_player_character(self, request, *args, **kwargs):
+        if self.game is None:
+            raise Exception("Request for user, with no curent game set in the view")
+        if request.user and not request.user.is_anonymous:
+            return self.game.get_player_character(request.user)
 
     def get_game_object(self, request, *args, **kwargs):
         """Return the generic game object associated with this request.
@@ -52,6 +60,9 @@ class NilpointGameBasic(View):
             )
         except NilpointMissingSlugException:
             return HttpResponseNotFound("No nilpoint slug provided!")
+
+        self.player_character = self.get_player_character(request, *args, **kwargs)
+
         action = request.GET.get("action", None)
         if action is None or action not in self._handlers:
             return HttpResponse("Action required", content_type="text/plain")
@@ -67,7 +78,15 @@ class NilpointGameBasic(View):
             partial = self.overview_partial
         else:
             partial = "nilpoint/game_overview.jinja2#game_overview"
-        return render(request, partial, context={"game": self.game.get_real_instance()})
+        # TODO: move the adding of game and user to context into a single location
+        return render(
+            request,
+            partial,
+            context={
+                "game": self.game.get_real_instance(),
+                "player_character": self.player_character,
+            },
+        )
 
     def debug(self, request, *args, **kwargs):
         """Debug view, can be used to drop in to places before the
@@ -79,6 +98,7 @@ class NilpointGameBasic(View):
         content = "Nilpoint Debug Page\n"
         content += "===================\n\n"
         content += f"Working on game: {self.game}\n\n"
+        content += f"Current player character: {self.player_character}\n\n"
         content += f"{request.method} : {request.path}\n\n"
         content += "*args\n-----\n\n"
         for i in args:

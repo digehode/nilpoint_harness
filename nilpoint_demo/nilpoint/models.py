@@ -67,6 +67,14 @@ class Game(models.Model):
         else:
             return "#"
 
+    def get_player_character(self, user):
+        try:
+            player = Player.objects.get(user=user)
+            character = PlayerCharacter.objects.get(player=player)
+            return character
+        except (Player.DoesNotExist, PlayerCharacter.DoesNotExist):
+            return None
+
 
 class Player(models.Model):
     """Represents a player
