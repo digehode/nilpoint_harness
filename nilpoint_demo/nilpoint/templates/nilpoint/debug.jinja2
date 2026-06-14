@@ -1,0 +1,35 @@
+{% partialdef debug %}
+    <pre>
+Nilpoint Debug Page
+-------------------
+
+Working on game: {{game}}
+
+Current player character: {{player_character}}
+
+{{request.method}} : {{request.path}}
+
+
+*args
+-----
+
+
+{% for i in args %}
+  {{i}}
+{% endfor %}
+
+**kwargs
+--------
+{% for k,v in kwargs.items  %}
+  - {{k}} : {{v}}
+{% endfor %}
+
+GET: {{request.GET}}
+
+POST: {{request.POST}}
+
+COOKIES: {{request.COOKIES}}
+
+USER: {{request.user}}
+  </pre>
+{% endpartialdef %}
