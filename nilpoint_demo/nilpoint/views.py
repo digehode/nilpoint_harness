@@ -1,13 +1,14 @@
 from django.views.generic import View
-from django.shortcuts import redirect  # , render
+from django.shortcuts import redirect, render
 from .models import Game
 from django.http import HttpResponseNotFound, HttpResponse
+from . import NilpointMissingSlugException
 
 
 class NilpointGameBasic(View):
     """Super class for game views."""
 
-    _handlers = {"debug": "debug"}
+    _handlers = {"debug": "debug", "overview": "handle_overview"}
 
     def __init__(self, *args, **kwargs):
         """Combine subclass handlers with the _handlers dict"""
@@ -15,13 +16,58 @@ class NilpointGameBasic(View):
             self._handlers.update(self.handlers)
         super().__init__(*args, **kwargs)
 
+    def get_game_object(self, request, *args, **kwargs):
+        """Return the generic game object associated with this request.
+
+        By default, it looks for the nilpoint_slug in the request path.
+
+        Games/platforms that don't use this system will need to
+        provide a different implementation of this method in their
+        views.
+
+        Will allow the Game.DoesNotExist exception to bubble up and
+        should be caught from wherever this is called.
+
+        Raises nilpoint.MissingSlugException if the slug doesn't identify a game instance
+
+        """
+        if "nilpoint_slug" in kwargs:
+            return Game.objects.get(nilpoint_slug=kwargs["nilpoint_slug"])
+        else:
+            raise NilpointMissingSlugException("No nilpoint_slug was given in kwargs")
+
     def get(self, request, *args, **kwargs):
-        """GET dispatcher"""
+        """GET dispatcher
+
+        Uses the content of self.handlers to redirect requests to appropriate methods.
+
+        Ensures the self.game object is set to the downcast game in question"""
+
+        # Retrieve the generic game object
+        try:
+            self.game = self.get_game_object(request, *args, **kwargs)
+        except Game.DoesNotExist:
+            return HttpResponseNotFound(
+                f"We don't seem to have a game usingthe slig '{kwargs['nilpoint_slug']}'!"
+            )
+        except NilpointMissingSlugException:
+            return HttpResponseNotFound("No nilpoint slug provided!")
         action = request.GET.get("action", None)
         if action is None or action not in self._handlers:
             return HttpResponse("Action required", content_type="text/plain")
 
         return getattr(self, self._handlers[action])(request, args, kwargs)
+
+    def handle_overview(self, request, *args, **kwargs):
+        """Page overview
+
+        Override the 'partial' used to render the content.
+        """
+        if hasattr(self, "overview_partial"):
+            partial = self.overview_partial
+        else:
+            partial = "nilpoint/game_overview.jinja2#game_overview"
+        return render(request, partial, context={"game": self.game.get_real_instance()})
 
     def debug(self, request, *args, **kwargs):
         """Debug view, can be used to drop in to places before the
@@ -32,6 +78,7 @@ class NilpointGameBasic(View):
 
         content = "Nilpoint Debug Page\n"
         content += "===================\n\n"
+        content += f"Working on game: {self.game}\n\n"
         content += f"{request.method} : {request.path}\n\n"
         content += "*args\n-----\n\n"
         for i in args:
@@ -79,10 +126,11 @@ class NilpointGameDispatchView(View):
 
         slug = kwargs.get("nilpoint_slug")
         try:
-            game = Game.objects.get(nilpoint_slug=slug).get_real_instance()
+            game = Game.objects.get(nilpoint_slug=slug)
 
         except Game.DoesNotExist:
             return HttpResponseNotFound(
                 f"We don't seem to have a game usingthe slig '{slug}'!"
             )
-        return redirect(game.get_url())
+        redir = redirect(game.get_url())
+        return redir
