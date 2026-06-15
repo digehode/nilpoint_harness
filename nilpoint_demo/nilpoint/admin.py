@@ -17,9 +17,11 @@ class GameAdmin(admin.ModelAdmin):
         "instance_description",
         "nilpoint_slug",
         "get_url",
+        "allow_multiple_characters",
     ]
 
 
 @admin.register(PlayerCharacter)
 class PlayerCharacterAdmin(admin.ModelAdmin):
     model = PlayerCharacter
+    list_display = ["handle", "player", "game"]

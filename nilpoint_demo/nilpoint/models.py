@@ -39,6 +39,11 @@ class Game(models.Model):
         unique=True,
     )
 
+    allow_multiple_characters = models.BooleanField(
+        help_text="Can a player have multiple player characters in this game?",
+        blank=False,
+        default=False,
+    )
     # Game type holds the subclass to which this can be downcast
     _game_type = models.CharField(max_length=50, editable=False)
 
@@ -67,13 +72,13 @@ class Game(models.Model):
         else:
             return "#"
 
-    def get_player_character(self, user):
+    def get_player_characters(self, user, game):
         try:
             player = Player.objects.get(user=user)
-            character = PlayerCharacter.objects.get(player=player)
-            return character
-        except (Player.DoesNotExist, PlayerCharacter.DoesNotExist):
-            return None
+            characters = PlayerCharacter.objects.filter(player=player, game=game).all()
+            return characters
+        except Player.DoesNotExist:
+            return []
 
 
 class Player(models.Model):

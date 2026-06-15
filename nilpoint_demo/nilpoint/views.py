@@ -1,6 +1,6 @@
 from django.views.generic import View
 from django.shortcuts import redirect, render
-from .models import Game
+from .models import Game, Player, PlayerCharacter
 from django.http import HttpResponseNotFound, HttpResponse
 from . import NilpointMissingSlugException
 from .forms import NewPlayerCharacterForm
@@ -24,12 +24,13 @@ class NilpointGameBasic(View):
         if hasattr(self, "handlers"):
             self._handlers.update(self.handlers)
         self.game = None
-        self.player_character = None
+        self.player = None
+        self.player_characters = []
         super().__init__(*args, **kwargs)
 
-    def get_player_character(self, request, *args, **kwargs):
+    def get_player_characters(self, request, *args, **kwargs):
         if self.game is not None and request.user and not request.user.is_anonymous:
-            return self.game.get_player_character(request.user)
+            return self.game.get_player_characters(request.user, self.game)
         return None
 
     def get_game_object(self, request, *args, **kwargs):
@@ -56,9 +57,8 @@ class NilpointGameBasic(View):
     def get_context_data(self, request, *args, **kwargs):
         context = {}
 
-        self.player_character = self.get_player_character(request, *args, **kwargs)
         context["game"] = self.game
-        context["player_character"] = self.player_character
+        context["player_characters"] = self.player_characters
 
         return context
 
@@ -74,21 +74,32 @@ class NilpointGameBasic(View):
         """Do all of the things that need to be done regardless of method
 
         1. Set the self.game object.
-        2. set self.action
-        3. If an early response is required (errors, for eg), return it
+        2. Set the self.player object, or None if it doesn't exist
+        3. Set self.player_characters to a list of player characters for this user, for this game
+        3. set self.action
+        4. If an early response is required (errors, for eg), return it
         """
 
         # TODO: make a decorator for the GET and POST functions that
         # use this and deal with the result so it removes the
         # duplication in those funcitons
 
+        if Player.objects.filter(user=request.user).exists():
+            self.player = request.user.player
+        else:
+            self.player = None
+
         try:
             self.game = self.get_game_object(request, *args, **kwargs)
         except Game.DoesNotExist:
             self.game = None
-
         except NilpointMissingSlugException:
             self.game = None
+
+        if self.player is not None and self.game is not None:
+            self.player_characters = self.get_player_characters(
+                request, *args, **kwargs
+            )
 
         self.action = request.GET.get("action", None)
         if self.action is None:
@@ -165,6 +176,19 @@ class NilpointGameBasic(View):
             "new_player_character_partial",
             "nilpoint/new_player_character.jinja2#new_player_character",
         )
+        message = None
+        if self.player is None:
+            message = "Your account is not a player account"
+        if not self.game.allow_multiple_characters and len(self.player_characters) > 0:
+            message = "You can't have more than one player character for this game"
+        if message is not None:
+            return self.nilpoint_render(
+                request,
+                partial,
+                {"message": message},
+                *args,
+                **kwargs,
+            )
 
         url = f"{self.game.get_url()}?action=new_player_character"
         url = self._value_from_subclass_or_default("new_player_character_submit", url)
@@ -181,7 +205,22 @@ class NilpointGameBasic(View):
             # check Without it, the form invalidates any duplicate
             # handle, regardless of which game it's used in
             form.game = self.game
+
             if form.is_valid():
+                new_player_character = PlayerCharacter.objects.create(
+                    player=self.player,
+                    game=self.game,
+                    handle=form.cleaned_data.get("handle"),
+                )
+                message = f"Your new player character '{new_player_character.handle}' has been created."
+                return self.nilpoint_render(
+                    request,
+                    partial,
+                    {"message": message},
+                    *args,
+                    **kwargs,
+                )
+
                 return HttpResponse("Valid", content_type="text/plain")
             else:
                 return self.nilpoint_render(

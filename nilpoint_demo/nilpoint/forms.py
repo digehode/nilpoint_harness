@@ -2,7 +2,7 @@ from django import forms
 import re
 
 
-# TODO: need to downcase PlayerCharacter?
+# TODO: need to downcast PlayerCharacter?
 from nilpoint.models import PlayerCharacter
 
 
@@ -26,10 +26,12 @@ class NewPlayerCharacterForm(forms.Form):
         # Grab the data Django has already sanitized
         handle = self.cleaned_data.get("handle").strip()
 
-        if PlayerCharacter.objects.filter(handle=handle).exists():
+        if PlayerCharacter.objects.filter(handle__iexact=handle).exists():
             if hasattr(self, "game"):
                 game = getattr(self, "game")
-                if PlayerCharacter.objects.filter(handle=handle, game=game).exists():
+                if PlayerCharacter.objects.filter(
+                    handle__iexact=handle, game=game
+                ).exists():
                     raise forms.ValidationError(
                         "That handle is already being used in this game."
                     )
