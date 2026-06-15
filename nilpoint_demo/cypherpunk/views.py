@@ -3,7 +3,7 @@ from django.http import HttpResponse
 from nilpoint.views import NilpointGameBasic
 
 
-class DebugView(NilpointGameBasic):
+class CypherpunkGameView(NilpointGameBasic):
     handlers = {"test": "test_view"}
 
     def test_view(self, request, *args, **kwargs):

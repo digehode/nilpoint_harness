@@ -1,7 +1,7 @@
 from django.urls import path
-from .views import DebugView
+from .views import CypherpunkGameView
 
 app_name = "cypherpunkgame"
 urlpatterns = [
-    path("", DebugView.as_view(), name="dispatch"),
+    path("", CypherpunkGameView.as_view(), name="dispatch"),
 ]

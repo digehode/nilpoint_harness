@@ -1,0 +1,18 @@
+{% partialdef new_player_character %}
+    <h1>New Player Character for {{ game.instance_name }}</h1>
+    <p>
+        Welcome {{ user.username }}. In order to play {{ game.instance_name }},
+        you need to create a player character. This is your in-game
+        identity.
+    </p>
+    {% if message %}
+        {{ message }}
+    {% endif %}
+    {% if form %}
+        <form action={{ submit_url }} method="post">
+            {% csrf_token %}
+            {{ form }}
+            <input type="submit" value="Create Player Character">
+        </form>
+    {% endif %}
+{% endpartialdef %}

@@ -3,12 +3,21 @@ from django.shortcuts import redirect, render
 from .models import Game
 from django.http import HttpResponseNotFound, HttpResponse
 from . import NilpointMissingSlugException
+from .forms import NewPlayerCharacterForm
+
+
+# TODO: deal with no game set, etc in dispatch function
+# TODO: decorators for GET only, POST only or both?
 
 
 class NilpointGameBasic(View):
     """Super class for game views."""
 
-    _handlers = {"debug": "debug", "overview": "handle_overview"}
+    _handlers = {
+        "debug": "debug",
+        "overview": "handle_overview",
+        "new_player_character": "handle_new_player_character",
+    }
 
     def __init__(self, *args, **kwargs):
         """Combine subclass handlers with the _handlers dict"""
@@ -47,14 +56,6 @@ class NilpointGameBasic(View):
     def get_context_data(self, request, *args, **kwargs):
         context = {}
 
-        try:
-            self.game = self.get_game_object(request, *args, **kwargs)
-        except Game.DoesNotExist:
-            self.game = None
-
-        except NilpointMissingSlugException:
-            self.game = None
-
         self.player_character = self.get_player_character(request, *args, **kwargs)
         context["game"] = self.game
         context["player_character"] = self.player_character
@@ -69,19 +70,71 @@ class NilpointGameBasic(View):
 
         return render(request, template, context=full_context)
 
+    def _get_post_common(self, request, *args, **kwargs):
+        """Do all of the things that need to be done regardless of method
+
+        1. Set the self.game object.
+        2. set self.action
+        3. If an early response is required (errors, for eg), return it
+        """
+
+        # TODO: make a decorator for the GET and POST functions that
+        # use this and deal with the result so it removes the
+        # duplication in those funcitons
+
+        try:
+            self.game = self.get_game_object(request, *args, **kwargs)
+        except Game.DoesNotExist:
+            self.game = None
+
+        except NilpointMissingSlugException:
+            self.game = None
+
+        self.action = request.GET.get("action", None)
+        if self.action is None:
+            return HttpResponse("Action required", content_type="text/plain")
+        if self.action not in self._handlers:
+            return HttpResponse(
+                f"Unknown action '{self.action}'", content_type="text/plain"
+            )
+        return None
+
     def get(self, request, *args, **kwargs):
         """GET dispatcher
 
         Uses the content of self.handlers to redirect requests to appropriate methods.
-
-        Ensures the self.game object is set to the downcast game in question"""
-
-        action = request.GET.get("action", None)
-        if action is None or action not in self._handlers:
-            return HttpResponse("Action required", content_type="text/plain")
-
-        response = getattr(self, self._handlers[action])(request, *args, **kwargs)
+        """
+        response = self._get_post_common(request, *args, **kwargs)
+        if response:
+            return response
+        response = getattr(self, self._handlers[self.action])(request, *args, **kwargs)
         return response
+
+    def post(self, request, *args, **kwargs):
+        """GET dispatcher
+
+        Uses the content of self.handlers to redirect requests to appropriate methods.
+        """
+        response = self._get_post_common(request, *args, **kwargs)
+        if response:
+            return response
+        response = getattr(self, self._handlers[self.action])(request, *args, **kwargs)
+        return response
+
+    def _value_from_subclass_or_default(self, name, default):
+        """Templates used in basic methods can be overridden by
+        subclasses simply by adding class variables in the subclass.
+
+        This method checks if 'name' exists and returns it if it does,
+        else returns the default. It is used by the methods that check
+        for overridden templates from subclasses.
+
+        """
+
+        if hasattr(self, name):
+            return getattr(self, name)
+        else:
+            return default
 
     def handle_overview(self, request, *args, **kwargs):
         """Page overview
@@ -89,11 +142,56 @@ class NilpointGameBasic(View):
         Override the 'partial' used to render the content.
         """
 
-        if hasattr(self, "overview_partial"):
-            partial = self.overview_partial
-        else:
-            partial = "nilpoint/game_overview.jinja2#game_overview"
+        partial = self._value_from_subclass_or_default(
+            "overview_partial", "nilpoint/game_overview.jinja2#game_overview"
+        )
+
         return self.nilpoint_render(request, partial, context={}, *args, **kwargs)
+
+    def handle_new_player_character(self, request, *args, **kwargs):
+        """Handles new player character creation. By default, displays
+        a form on a GET request and processes it on POST.
+
+        Uses self.new_player_character_partial as a template if it
+        exists, or the default Nilpoint template if not.
+
+        Form submission is to the URL in
+        self.new_player_character_submit or will use the default
+        namespace rules if not.
+
+        """
+
+        partial = self._value_from_subclass_or_default(
+            "new_player_character_partial",
+            "nilpoint/new_player_character.jinja2#new_player_character",
+        )
+
+        url = f"{self.game.get_url()}?action=new_player_character"
+        url = self._value_from_subclass_or_default("new_player_character_submit", url)
+
+        if request.method == "GET":
+            form = NewPlayerCharacterForm()
+            return self.nilpoint_render(
+                request, partial, {"form": form, "submit_url": url}, *args, **kwargs
+            )
+        if request.method == "POST":
+            form = NewPlayerCharacterForm(request.POST)
+
+            # Add the game object to allow the form to do a narrower
+            # check Without it, the form invalidates any duplicate
+            # handle, regardless of which game it's used in
+            form.game = self.game
+            if form.is_valid():
+                return HttpResponse("Valid", content_type="text/plain")
+            else:
+                return self.nilpoint_render(
+                    request,
+                    partial,
+                    {"form": form, "submit_url": url},
+                    *args,
+                    **kwargs,
+                )
+        return HttpResponse("Method not implemented", content_type="text/plain")
 
     def debug(self, request, *args, **kwargs):
         """Debug view, can be used to drop in to places before the
@@ -108,26 +206,6 @@ class NilpointGameBasic(View):
             *args,
             **kwargs,
         )
-
-        # content = "Nilpoint Debug Page\n"
-        # content += "===================\n\n"
-        # content += f"Working on game: {self.game}\n\n"
-        # content += f"Current player character: {self.player_character}\n\n"
-        # content += f"{request.method} : {request.path}\n\n"
-        # content += "*args\n-----\n\n"
-        # for i in args:
-        #     content += f"    {i}\n"
-        # content += "\n"
-        # content += "**kwargs\n--------\n\n"
-
-        # for k in kwargs:
-        #     content += f"    {k} : {kwargs[k]}\n"
-        # content += "\n"
-        # content += f"GET: {request.GET}\n\n"
-        # content += f"POST: {request.POST}\n\n"
-        # content += f"COOKIES: {request.COOKIES}\n\n"
-        # content += f"USER: {request.user}\n\n"
-        # return HttpResponse(content, content_type="text/plain")
 
 
 class NilpointRootView(View):
