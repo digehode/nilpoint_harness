@@ -4,5 +4,7 @@
     </script>
 {% endblock javascript_extra %}
 {% block content %}
-    <div id="nilpoint-container"></div>
+    <div id="nilpoint-container"
+         {% if launch_game %}hx-get="{{ launch_game.get_url }}?action=landing" hx-trigger="load" hx-target="this"{% endif %}>
+    </div>
 {% endblock content %}

@@ -4,7 +4,7 @@ from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
 from django.shortcuts import redirect, render
 from django.views.generic import View
 from django.contrib import messages
-from nilpoint.models import Player
+from nilpoint.models import Player, Game
 
 
 class BaseView(View):
@@ -15,6 +15,16 @@ class BaseView(View):
 
     def get(self, request, *args, **kwargs):
         return self._render(request)
+
+
+class GameLaunchView(View):
+    def get(self, request, *args, **kwargs):
+        # TODO parameterise these and pass to nilpoint? A setting?
+        # TODO: error handling.
+        slug = kwargs["nilpoint_slug"]
+        # TODO: 404 on no matching slug
+        game = Game.objects.get(nilpoint_slug=slug)
+        return render(request, "home.jinja2", {"launch_game": game})
 
 
 class HomeView(BaseView):

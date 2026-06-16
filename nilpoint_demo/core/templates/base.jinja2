@@ -85,7 +85,16 @@
                     <li>
                         <details class="dropdown">
                             <summary role="button">Games</summary>
-                            {% include "nilpoint/game_info.jinja2#game_list" %}
+                            <ul>
+                                {% for game in nilpoint.games %}
+                                    <li>
+                                        <a hx-get="{{ game.get_url }}?action=landing"
+                                           hx-target="#nilpoint-container"
+                                           hx-push-url="{% url 'launch' nilpoint_slug=game.nilpoint_slug %}"
+                                           href="#">{{ game.instance_name }} ({{ game.name }})</a>
+                                    </li>
+                                {% endfor %}
+                            </ul>
                         </details>
                     </li>
                     <li>
