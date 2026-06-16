@@ -19,7 +19,12 @@
             you need to create a player character. This is your in-game
             identity.
         </p>
-        <form action={{ submit_url }} method="post">
+        <form action="{{ submit_url }}"
+              method="post"
+              hx-post="{{ game.get_url }}?action=new_player_character"
+              hx-target="#nilpoint-character-panel"
+              hx-swap="inner"
+              id="form-container">
             {% csrf_token %}
             {{ form }}
             <input type="submit" value="Create Player Character">

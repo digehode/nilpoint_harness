@@ -50,6 +50,8 @@
                     src="{% static 'pico-main/scripts/minimal-theme-switcher.js' %}"></script>
             <script defer src="{% static 'js/base.js' %}"></script>
         {% endblock javascript %}
+        {% block javascript_extra %}
+        {% endblock javascript_extra %}
     </head>
     {# Include csrf token in all requests #}
     <body hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>

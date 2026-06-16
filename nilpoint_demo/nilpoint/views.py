@@ -4,10 +4,27 @@ from .models import Game, Player, PlayerCharacter
 from django.http import HttpResponseNotFound, HttpResponse
 from . import NilpointMissingSlugException
 from .forms import NewPlayerCharacterForm
-
+from functools import wraps
+import json
 
 # TODO: deal with no game set, etc in dispatch function
-# TODO: decorators for GET only, POST only or both?
+# TODO: decorators for GET only handlers, POST only or both?
+
+
+class HtmxTriggerResponse(HttpResponse):
+    """An HTTP Response that automatically attaches an HTMX trigger header."""
+
+    def __init__(self, content=b"", trigger_name=None, trigger_data=None, **kwargs):
+        super().__init__(content, **kwargs)
+
+        if trigger_name:
+            # If there's data, pass a dict; otherwise just pass the event name string
+            payload = (
+                json.dumps({trigger_name: trigger_data})
+                if trigger_data
+                else trigger_name
+            )
+            self["HX-Trigger"] = payload
 
 
 class NilpointGameBasic(View):
@@ -16,7 +33,10 @@ class NilpointGameBasic(View):
     _handlers = {
         "debug": "debug",
         "overview": "handle_overview",
+        "landing": "handle_landing",
         "new_player_character": "handle_new_player_character",
+        "select_player_character": "handle_select_player_character",
+        "player_selection_panel": "handle_player_selection_panel",
     }
 
     def __init__(self, *args, **kwargs):
@@ -26,6 +46,7 @@ class NilpointGameBasic(View):
         self.game = None
         self.player = None
         self.player_characters = []
+        self.player_character = []
         super().__init__(*args, **kwargs)
 
     def get_player_characters(self, request, *args, **kwargs):
@@ -59,7 +80,8 @@ class NilpointGameBasic(View):
 
         context["game"] = self.game
         context["player_characters"] = self.player_characters
-
+        context["player_character"] = self.player_character
+        print(f"Setting context to {context}")
         return context
 
     def nilpoint_render(self, request, template, context={}, *args, **kwargs):
@@ -68,67 +90,127 @@ class NilpointGameBasic(View):
         full_context.update(self.get_context_data(request, *args, **kwargs))
         full_context.update(context)
 
-        return render(request, template, context=full_context)
+        response = render(request, template, context=full_context)
 
-    def _get_post_common(self, request, *args, **kwargs):
-        """Do all of the things that need to be done regardless of method
+        return response
 
-        1. Set the self.game object.
-        2. Set the self.player object, or None if it doesn't exist
-        3. Set self.player_characters to a list of player characters for this user, for this game
-        3. set self.action
-        4. If an early response is required (errors, for eg), return it
-        """
+    def _request_wrapper(func):
 
-        # TODO: make a decorator for the GET and POST functions that
-        # use this and deal with the result so it removes the
-        # duplication in those funcitons
+        @wraps(func)
+        def _get_post_common(self, request, *args, **kwargs):
+            """Do all of the things that need to be done regardless of method
 
-        if Player.objects.filter(user=request.user).exists():
-            self.player = request.user.player
+            Before the handling:
+            1. Set the self.game object.
+            2. Set the self.player object, or None if it doesn't exist
+            3. Set self.player_characters to a list of player characters for this user, for this game
+            3. set self.action
+            4. If an early response is required (errors, for eg), return it
+
+            After the handling:
+            1. Set/clear cookies, etc.
+            """
+            print("In the decorator")
+            response = None
+            if Player.objects.filter(user=request.user).exists():
+                self.player = request.user.player
+            else:
+                self.player = None
+
+            try:
+                self.game = self.get_game_object(request, *args, **kwargs)
+            except Game.DoesNotExist:
+                self.game = None
+            except NilpointMissingSlugException:
+                self.game = None
+
+            if self.player is not None and self.game is not None:
+                self.player_characters = self.get_player_characters(
+                    request, *args, **kwargs
+                )
+
+            # Check if the pc cookie is set and if it matches the game and player
+            pc_id = request.COOKIES.get("pc", None)
+            if pc_id is not None:
+                try:
+                    pc = PlayerCharacter.objects.get(id=pc_id)
+                    if pc.game != self.game or pc.player != self.player:
+                        self.player_character = None
+                    else:
+                        self.player_character = pc
+                except PlayerCharacter.DoesNotExist:
+                    self.player_character = None
+
+            self.action = request.GET.get("action", None)
+            if self.action is None:
+                response = HttpResponse("Action required", content_type="text/plain")
+            elif self.action not in self._handlers:
+                response = HttpResponse(
+                    f"Unknown action '{self.action}'", content_type="text/plain"
+                )
+
+            # Now to the specific GET/POST handler.  If the response
+            # is already set, it's because something happened in
+            # checking state that overrides general handling
+            if response is None:
+                response = func(self, request, *args, **kwargs)
+
+            # Any changes post handling
+
+            if self.player_character is None:
+                response.delete_cookie("pc")
+
+            return response
+
+        return _get_post_common
+
+    def handle_select_player_character(self, request, *args, **kwargs):
+        selected_pc = request.POST.get("player_character", None)
+        if selected_pc == "-1":
+            self.player_character = None
+            return HtmxTriggerResponse(
+                "Cleared selected player character",
+                content_type="text/plain",
+                trigger_name="player_character_changed",
+            )
+
         else:
-            self.player = None
+            try:
+                pc = PlayerCharacter.objects.get(id=selected_pc)
+            except PlayerCharacter.DoesNotExist:
+                return HttpResponse(
+                    f"Couldn't find selected player character '{selected_pc}'",
+                    content_type="text/plain",
+                )
 
-        try:
-            self.game = self.get_game_object(request, *args, **kwargs)
-        except Game.DoesNotExist:
-            self.game = None
-        except NilpointMissingSlugException:
-            self.game = None
-
-        if self.player is not None and self.game is not None:
-            self.player_characters = self.get_player_characters(
-                request, *args, **kwargs
+        if pc.player == self.player and pc.game == self.game:
+            self.select_player_character = pc
+            response = HtmxTriggerResponse(
+                f"Successfully selected pc {pc.handle}, id {pc.id}.",
+                content_type="text/plain",
+                trigger_name="player_character_changed",
             )
+            response.set_cookie("pc", pc.id)
+            return response
+        else:
+            self.player_character = None
+            return HttpResponse("Couldn't match selected pc", content_type="text/plain")
 
-        self.action = request.GET.get("action", None)
-        if self.action is None:
-            return HttpResponse("Action required", content_type="text/plain")
-        if self.action not in self._handlers:
-            return HttpResponse(
-                f"Unknown action '{self.action}'", content_type="text/plain"
-            )
-        return None
-
+    @_request_wrapper
     def get(self, request, *args, **kwargs):
         """GET dispatcher
 
         Uses the content of self.handlers to redirect requests to appropriate methods.
         """
-        response = self._get_post_common(request, *args, **kwargs)
-        if response:
-            return response
         response = getattr(self, self._handlers[self.action])(request, *args, **kwargs)
         return response
 
+    @_request_wrapper
     def post(self, request, *args, **kwargs):
         """GET dispatcher
 
         Uses the content of self.handlers to redirect requests to appropriate methods.
         """
-        response = self._get_post_common(request, *args, **kwargs)
-        if response:
-            return response
         response = getattr(self, self._handlers[self.action])(request, *args, **kwargs)
         return response
 
@@ -155,6 +237,34 @@ class NilpointGameBasic(View):
 
         partial = self._value_from_subclass_or_default(
             "overview_partial", "nilpoint/game_overview.jinja2#game_overview"
+        )
+
+        return self.nilpoint_render(request, partial, context={}, *args, **kwargs)
+
+    def handle_player_selection_panel(self, request, *args, **kwargs):
+        """Player character selection panel
+
+        Override player_selection_panel_partial used to render the content.
+        """
+
+        partial = self._value_from_subclass_or_default(
+            "player_selection_panel_partial",
+            "nilpoint/player_selection.jinja2#player_selection",
+        )
+
+        return self.nilpoint_render(request, partial, context={}, *args, **kwargs)
+
+    def handle_landing(self, request, *args, **kwargs):
+        """Landing page. This is the first page seen when accessing
+        the game instance, and is the orchestrator of all others.
+
+        Override the 'partial' used to render the content by setting
+        'landing_partial' in a subclass.
+
+        """
+
+        partial = self._value_from_subclass_or_default(
+            "landing_partial", "nilpoint/game_landing.jinja2#landing"
         )
 
         return self.nilpoint_render(request, partial, context={}, *args, **kwargs)

@@ -1,9 +1,8 @@
 {% extends "base.jinja2" %}
+{% block javascript_extra %}
+    <script src="https://cdn.jsdelivr.net/npm/htmx.org@2.0.10/dist/htmx.min.js" integrity="sha384-H5SrcfygHmAuTDZphMHqBJLc3FhssKjG7w/CeCpFReSfwBWDTKpkzPP8c+cLsK+V" crossorigin="anonymous">
+    </script>
+{% endblock javascript_extra %}
 {% block content %}
-    <p>Nilpoint demo main page</p>
-    {% include "nilpoint/game_info.jinja2#game_list" %}
-    {% include "nilpoint/player_info.jinja2#player_characters" %}
-    {% with game=nilpoint.games.0 %}
-        {% include "nilpoint/game_info.jinja2#game_info" %}
-    {% endwith %}
+    <div id="nilpoint-container"></div>
 {% endblock content %}

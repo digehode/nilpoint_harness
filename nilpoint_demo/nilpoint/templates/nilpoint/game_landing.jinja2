@@ -1,0 +1,11 @@
+{% partialdef landing %}
+    <div id="nilpoint-game-container">
+        <h1>Nilpoint: {{ game.instance_name }}</h1>
+        <div id="nilpoint-character-panel"
+            hx-get="{{ game.get_url }}?action=player_selection_panel"
+            hx-trigger="load, player_character_changed from:body"
+            hx-target="this"
+            {# hx-trigger="htmx:afterRequest from:#my-post-button" #}
+            >Loading...</div>
+    </div>
+{% endpartialdef %}
