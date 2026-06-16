@@ -88,3 +88,22 @@ ul.errorlist li {
     border-bottom: none;
 }
 /* ------- /nav ------- */
+
+/* ------- Layout -------- */
+
+#nilpoint-character-panel,
+#nilpoint-scene,
+#nilpoint-controls {
+    border: 2px solid #666;
+    padding: 1rem;
+}
+
+#nilpoint-scene {
+    width: 100%;
+
+    aspect-ratio: 16 / 9; /* Forces a 16:9 widescreen ratio */
+
+    background-color: #3498db;
+}
+
+/* ------- /Layout ------- */
