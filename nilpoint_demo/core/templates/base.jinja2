@@ -49,6 +49,22 @@
             <script defer
                     src="{% static 'pico-main/scripts/minimal-theme-switcher.js' %}"></script>
             <script defer src="{% static 'js/base.js' %}"></script>
+            {% if debug %}
+                <script>
+			console.log("Setting up debug mode/debug toolbar htmx stuff");
+    if (typeof window.htmx !== "undefined") {
+        htmx.on("htmx:afterSettle", function(detail) {
+            if (
+                typeof window.djdt !== "undefined"
+                && detail.target instanceof HTMLBodyElement
+            ) {
+                djdt.show_toolbar();
+            }
+        });
+			}
+						console.log("Debug mode/debug toolbar htmx stuff done.");
+                </script>
+            {% endif %}
         {% endblock javascript %}
         {% block javascript_extra %}
         {% endblock javascript_extra %}
@@ -60,6 +76,11 @@
                 <ul>
                     <li><strong>Nilpoint</strong></li>
                 </ul>
+                {% if debug %}
+                    <ul>
+                        <li><span class="warning">Running in DEBUG mode</span></li>
+                    </ul>
+                {% endif %}
                 <ul>
                     <li>
                         <details class="dropdown">

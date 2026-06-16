@@ -31,6 +31,7 @@ skip_glob = ["**/migrations/*.py"]
 
 [dependency-groups]
 dev = [
+    "django-debug-toolbar>=6.3.0",
     "pre-commit>=4.6.0",
     "ruff>=0.15.17",
 ]
