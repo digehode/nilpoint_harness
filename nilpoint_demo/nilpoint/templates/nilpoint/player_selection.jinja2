@@ -12,7 +12,7 @@
                     <li>
                         <a href="#"
                            hx-post="{{ game.get_url }}?action=select_player_character"
-                           hx-vals='{"player_character": "{{ pc.id }}"}'>{{ pc.handle }}{{ pc.id }}</a>
+                           hx-vals='{"player_character": "{{ pc.id }}"}'>{{ pc.handle }}</a>
                     </li>
                 {% endfor %}
             </ul>

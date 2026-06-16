@@ -91,7 +91,8 @@ class NilpointGameBasic(View):
         full_context.update(context)
 
         response = render(request, template, context=full_context)
-
+        if "trigger" in kwargs:
+            response["HX-Trigger"] = kwargs["trigger"]
         return response
 
     def _request_wrapper(func):
@@ -327,6 +328,7 @@ class NilpointGameBasic(View):
                     request,
                     partial,
                     {"message": message},
+                    trigger="player_character_changed",
                     *args,
                     **kwargs,
                 )
