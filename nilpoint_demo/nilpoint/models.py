@@ -101,6 +101,30 @@ class Player(models.Model):
         return self.user.username
 
 
+class Location(models.Model):
+    """Represents a location in the game."""
+
+    name = models.CharField(
+        help_text="A short name of the place, will be shown to the user",
+        max_length=100,
+        null=False,
+        blank=False,
+    )
+    instance_description = models.TextField(
+        null=False,
+        blank=True,
+        help_text="Description of the location",
+    )
+    graphic = models.CharField(
+        help_text="Static path for the graphic", max_length=100, null=True, blank=True
+    )
+    initial = models.BooleanField(
+        help_text="Is this the starting location?",
+        blank=False,
+        default=False,
+    )
+
+
 class PlayerCharacter(models.Model):
     """Represents a player for a given game
 
@@ -120,4 +144,9 @@ class PlayerCharacter(models.Model):
     )
     game = models.ForeignKey(
         Game, null=False, on_delete=models.CASCADE, related_name="player_characters"
+    )
+    current_location = models.ForeignKey(
+        Location,
+        null=True,
+        on_delete=models.SET_NULL,
     )
