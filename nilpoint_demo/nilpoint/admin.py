@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import Player, PlayerCharacter, Game
+from .models import Player, PlayerCharacter, Game, Location
 
 
 @admin.register(Player)
@@ -25,3 +25,9 @@ class GameAdmin(admin.ModelAdmin):
 class PlayerCharacterAdmin(admin.ModelAdmin):
     model = PlayerCharacter
     list_display = ["handle", "player", "game"]
+
+
+@admin.register(Location)
+class LocationAdmin(admin.ModelAdmin):
+    model = Location
+    list_display = ["name", "description", "game", "graphic", "initial"]

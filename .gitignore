@@ -13,3 +13,4 @@ wheels/
 /package-lock.json
 /package.json
 /nilpoint_demo/db.sqlite3
+/nilpoint_demo/var/

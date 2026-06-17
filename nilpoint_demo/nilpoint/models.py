@@ -80,6 +80,10 @@ class Game(models.Model):
         except Player.DoesNotExist:
             return []
 
+    def get_initial_location(self):
+
+        return self.locations.filter(initial=True).first()
+
 
 class Player(models.Model):
     """Represents a player
@@ -110,10 +114,13 @@ class Location(models.Model):
         null=False,
         blank=False,
     )
-    instance_description = models.TextField(
+    description = models.TextField(
         null=False,
         blank=True,
         help_text="Description of the location",
+    )
+    game = models.ForeignKey(
+        Game, null=False, on_delete=models.CASCADE, related_name="locations"
     )
     graphic = models.CharField(
         help_text="Static path for the graphic", max_length=100, null=True, blank=True
@@ -123,6 +130,15 @@ class Location(models.Model):
         blank=False,
         default=False,
     )
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=["game"],
+                condition=models.Q(initial=True),
+                name="unique_initial_location_per_game",
+            )
+        ]
 
 
 class PlayerCharacter(models.Model):

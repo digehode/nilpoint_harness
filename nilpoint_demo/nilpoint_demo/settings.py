@@ -144,26 +144,26 @@ MESSAGE_TAGS = {
 # https://docs.djangoproject.com/en/6.0/howto/static-files/
 DATA_DIR = Path(env("DATA_DIR", default=BASE_DIR.joinpath("var")))
 STATIC_URL = "static/"
-# if DEBUG:
-#     STATIC_ROOT = DATA_DIR / "static"
-#     STATIC_ROOT.mkdir(parents=True, exist_ok=True)
-#     STORAGES = {
-#         "default": {
-#             "BACKEND": env(
-#                 "DEFAULT_STORAGE",
-#                 default="django.core.files.storage.FileSystemStorage",  # noqa: E501
-#             ),
-#         },
-#         "staticfiles": {
-#             "BACKEND": env(
-#                 "STATICFILES_STORAGE",
-#                 default="django.contrib.staticfiles.storage.ManifestStaticFilesStorage",  # noqa: E501
-#             ),
-#         },
-#     }
+if DEBUG:
+    STATIC_ROOT = DATA_DIR / "static"
+    STATIC_ROOT.mkdir(parents=True, exist_ok=True)
+    STORAGES = {
+        "default": {
+            "BACKEND": env(
+                "DEFAULT_STORAGE",
+                default="django.core.files.storage.FileSystemStorage",  # noqa: E501
+            ),
+        },
+        "staticfiles": {
+            "BACKEND": env(
+                "STATICFILES_STORAGE",
+                default="django.contrib.staticfiles.storage.ManifestStaticFilesStorage",  # noqa: E501
+            ),
+        },
+    }
 
-#     STATICFILES_FINDERS = [
-#         # Default finders
-#         "django.contrib.staticfiles.finders.FileSystemFinder",
-#         "django.contrib.staticfiles.finders.AppDirectoriesFinder",
-#     ]
+    STATICFILES_FINDERS = [
+        # Default finders
+        "django.contrib.staticfiles.finders.FileSystemFinder",
+        "django.contrib.staticfiles.finders.AppDirectoriesFinder",
+    ]

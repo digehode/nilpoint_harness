@@ -107,6 +107,8 @@ class NilpointGameBasic(View):
             3. Set self.player_characters to a list of player characters for this user, for this game
             3. set self.action
             4. If an early response is required (errors, for eg), return it
+            5. Check if the current player character has a location.
+               Set it to the starting location for the game if not.
 
             After the handling:
             1. Set/clear cookies, etc.
@@ -161,6 +163,14 @@ class NilpointGameBasic(View):
             if self.player_character is None:
                 response.delete_cookie("pc")
 
+            ##Deal with location
+            if self.player_character:
+                if self.player_character.current_location is None:
+                    self.player_character.current_location = (
+                        self.game.get_initial_location()
+                    )
+                    print(f"Set location to {self.player_character.current_location}")
+                    self.player_character.save()
             return response
 
         return _get_post_common

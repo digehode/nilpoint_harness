@@ -1,11 +1,20 @@
+{% load static i18n %}
 {% partialdef landing %}
     <div id="nilpoint-game-container">
-        <h1>{{ game.instance_name }}</h1>
+        <h1>You are playing {{ game.instance_name }}</h1>
         <div id="nilpoint-character-panel"
              hx-get="{{ game.get_url }}?action=player_selection_panel"
              hx-trigger="load, player_character_changed from:body"
              hx-target="this">Loading...</div>
-        <div id="nilpoint-scene">Loading</div>
-        <div id="nilpoint-controls">Loading</div>
+        <div id="nilpoint-scene">
+            <img src="{% static player_character.current_location.graphic %}"
+                 height="900"
+                 width="1600"
+                 alt="TODO: alt tags in the location record">
+        </div>
+        <div id="nilpoint-controls">
+            <h1>{{ player_character.current_location.name }}</h1>
+            <p>{{ player_character.current_location.description }}</p>
+        </div>
     </div>
 {% endpartialdef %}
