@@ -6,12 +6,10 @@
              hx-get="{{ game.get_url }}?action=player_selection_panel"
              hx-trigger="load, player_character_changed from:body"
              hx-target="this">Loading...</div>
-        <div id="nilpoint-scene">
-            <img src="{% static player_character.current_location.graphic %}"
-                 height="900"
-                 width="1600"
-                 alt="TODO: alt tags in the location record">
-        </div>
+        <div id="nilpoint-scene"
+             hx-get="{{ game.get_url }}?action=get_location_graphic"
+             hx-trigger="load, location_changed from:body, player_character_changed from:body"
+             hx-target="this">Loading...</div>
         <div id="nilpoint-controls">
             <h1>{{ player_character.current_location.name }}</h1>
             <p>{{ player_character.current_location.description }}</p>

@@ -31,12 +31,14 @@ class NilpointGameBasic(View):
     """Super class for game views."""
 
     _handlers = {
+        # TODO: Think about the naming scheme here
         "debug": "debug",
         "overview": "handle_overview",
         "landing": "handle_landing",
         "new_player_character": "handle_new_player_character",
         "select_player_character": "handle_select_player_character",
         "player_selection_panel": "handle_player_selection_panel",
+        "get_location_graphic": "handle_get_location_graphic",
     }
 
     def __init__(self, *args, **kwargs):
@@ -46,7 +48,7 @@ class NilpointGameBasic(View):
         self.game = None
         self.player = None
         self.player_characters = []
-        self.player_character = []
+        self.player_character = None
         super().__init__(*args, **kwargs)
 
     def get_player_characters(self, request, *args, **kwargs):
@@ -81,7 +83,7 @@ class NilpointGameBasic(View):
         context["game"] = self.game
         context["player_characters"] = self.player_characters
         context["player_character"] = self.player_character
-        print(f"Setting context to {context}")
+
         return context
 
     def nilpoint_render(self, request, template, context={}, *args, **kwargs):
@@ -113,7 +115,7 @@ class NilpointGameBasic(View):
             After the handling:
             1. Set/clear cookies, etc.
             """
-            print("In the decorator")
+
             response = None
             if Player.objects.filter(user=request.user).exists():
                 self.player = request.user.player
@@ -169,8 +171,9 @@ class NilpointGameBasic(View):
                     self.player_character.current_location = (
                         self.game.get_initial_location()
                     )
-                    print(f"Set location to {self.player_character.current_location}")
+
                     self.player_character.save()
+
             return response
 
         return _get_post_common
@@ -188,6 +191,7 @@ class NilpointGameBasic(View):
         else:
             try:
                 pc = PlayerCharacter.objects.get(id=selected_pc)
+
             except PlayerCharacter.DoesNotExist:
                 return HttpResponse(
                     f"Couldn't find selected player character '{selected_pc}'",
@@ -195,13 +199,14 @@ class NilpointGameBasic(View):
                 )
 
         if pc.player == self.player and pc.game == self.game:
-            self.select_player_character = pc
+            self.player_character = pc
             response = HtmxTriggerResponse(
                 f"Successfully selected pc {pc.handle}, id {pc.id}.",
                 content_type="text/plain",
                 trigger_name="player_character_changed",
             )
             response.set_cookie("pc", pc.id)
+
             return response
         else:
             self.player_character = None
@@ -264,6 +269,30 @@ class NilpointGameBasic(View):
         )
 
         return self.nilpoint_render(request, partial, context={}, *args, **kwargs)
+
+    def handle_get_location_graphic(self, request, *args, **kwargs):
+        """Return the content of the graphic display area
+
+        Override location_graphic_partial used to render the content.
+        """
+        context = {}
+        partial = self._value_from_subclass_or_default(
+            "location_graphic_partial",
+            "nilpoint/location_panel.jinja2#location_graphic",
+        )
+
+        if (
+            self.player_character is None
+            or self.player_character.current_location is None
+        ):
+            # TODO: add default graphic to game object, have default
+            # here in nilpoint/static
+
+            context = {
+                "location_graphic_override": "cypherpunk/locations/00_none/simple.png"
+            }
+
+        return self.nilpoint_render(request, partial, context, *args, **kwargs)
 
     def handle_landing(self, request, *args, **kwargs):
         """Landing page. This is the first page seen when accessing
