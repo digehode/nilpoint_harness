@@ -274,20 +274,24 @@ class NilpointGameBasic(View):
         """Return the content of the graphic display area
 
         - Override location_graphic_partial used to render the content.
-        - Override default_location_graphic to change the default graphic when not at a location
+
         """
         context = {}
         partial = self._value_from_subclass_or_default(
             "location_graphic_partial",
             "nilpoint/location_panel.jinja2#location_graphic",
         )
-        default_location_graphic = self._value_from_subclass_or_default(
-            "default_location_graphic", "nilpoint/locations/00_none/simple.png"
-        )
         if (
             self.player_character is None
             or self.player_character.current_location is None
         ):
+            if (
+                self.game.default_location_graphic is None
+                or self.game.default_location_graphic.strip() == ""
+            ):
+                default_location_graphic = "nilpoint/locations/00_none/simple.png"
+            else:
+                default_location_graphic = self.game.default_location_graphic
             context = {"location_graphic_override": default_location_graphic}
 
         return self.nilpoint_render(request, partial, context, *args, **kwargs)

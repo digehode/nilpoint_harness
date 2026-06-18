@@ -44,6 +44,15 @@ class Game(models.Model):
         blank=False,
         default=False,
     )
+
+    default_location_graphic = models.CharField(
+        max_length=100,
+        null=True,
+        blank=True,
+        help_text="Static path to default location graphic. Uses nilpoint default if not set.",
+        default=None,
+    )
+
     # Game type holds the subclass to which this can be downcast
     _game_type = models.CharField(max_length=50, editable=False)
 
