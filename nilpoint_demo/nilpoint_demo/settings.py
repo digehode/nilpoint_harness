@@ -167,3 +167,7 @@ if DEBUG:
         "django.contrib.staticfiles.finders.FileSystemFinder",
         "django.contrib.staticfiles.finders.AppDirectoriesFinder",
     ]
+
+
+# Nilpoint Settings
+NILPOINT_SETTINGS = {"PlayerCharacter": "cypherpunk.CypherpunkPC"}

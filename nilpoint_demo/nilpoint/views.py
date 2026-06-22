@@ -6,6 +6,7 @@ from . import NilpointMissingSlugException
 from .forms import NewPlayerCharacterForm
 from functools import wraps
 import json
+from .models import get_model
 
 # TODO: decorators for GET only handlers, POST only or both?
 
@@ -378,7 +379,7 @@ class NilpointGameBasic(View):
             form.game = self.game
 
             if form.is_valid():
-                new_player_character = PlayerCharacter.objects.create(
+                new_player_character = get_model("PlayerCharacter").objects.create(
                     player=self.player,
                     game=self.game,
                     handle=form.cleaned_data.get("handle"),

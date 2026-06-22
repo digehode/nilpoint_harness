@@ -3,6 +3,23 @@
 from django.contrib.auth import get_user_model
 from django.db import models
 from django.shortcuts import reverse
+from django.apps import apps
+
+from model_utils.managers import InheritanceManager
+from .nilpoint_settings import nilpoint_settings
+
+# TODO: move to using InheritanceManager in game instead of custom downcast functions?
+
+
+def get_model(archetype):
+    # Get the string configuration (e.g., 'my_other_app.MyModel')
+    model_string = nilpoint_settings.get(archetype)
+    print(f"Got {model_string}")
+    # Dynamically resolve it to the actual Python class
+    # This is safe to call now because the app registry is fully loaded at runtime
+    ConfiguredModel = apps.get_model(model_string, require_ready=True)
+    print(f"Got {ConfiguredModel}")
+    return ConfiguredModel
 
 
 class Game(models.Model):
@@ -89,13 +106,17 @@ class Game(models.Model):
         """
         try:
             player = Player.objects.get(user=user)
-            characters = PlayerCharacter.objects.filter(player=player, game=game).all()
+            characters = (
+                PlayerCharacter.objects.filter(player=player, game=game)
+                .select_subclasses()
+                .all()
+            )
             return characters
         except Player.DoesNotExist:
             return []
 
     def get_initial_location(self):
-        """Return the initial location for the game, or None if there isn't one."""
+        """Return the initial location for the game, or None if there isn't one"""
         return self.locations.filter(initial=True).first()
 
 
@@ -167,6 +188,8 @@ class PlayerCharacter(models.Model):
     models/views/etc. to refer to the character.
 
     """
+
+    objects = InheritanceManager()
 
     handle = models.CharField(max_length=100, null=False, blank=False)
     player = models.ForeignKey(
