@@ -5,6 +5,7 @@ from django.shortcuts import redirect, render
 from django.views.generic import View
 from django.contrib import messages
 from nilpoint.models import Player, Game
+from django.http import Http404
 
 
 class BaseView(View):
@@ -19,11 +20,17 @@ class BaseView(View):
 
 class GameLaunchView(View):
     def get(self, request, *args, **kwargs):
-        # TODO parameterise these and pass to nilpoint? A setting?
-        # TODO: error handling.
-        slug = kwargs["nilpoint_slug"]
-        # TODO: 404 on no matching slug
-        game = Game.objects.get(nilpoint_slug=slug)
+        # TODO parameterise these and pass to nilpoint? A setting? Or
+        # always use nilpoint_slug?
+        if "nilpoint_slug" in kwargs:
+            slug = kwargs["nilpoint_slug"]
+
+            try:
+                game = Game.objects.get(nilpoint_slug=slug)
+            except Game.DoesNotExist:
+                raise Http404(f"There is no game using the slig '{slug}'")
+        else:
+            raise Http404("Not found.")
         return render(request, "home.jinja2", {"launch_game": game})
 
 
