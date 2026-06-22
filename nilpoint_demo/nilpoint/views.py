@@ -116,7 +116,10 @@ class NilpointGameBasic(View):
             """
 
             response = None
-            if Player.objects.filter(user=request.user).exists():
+            if (
+                request.user.is_authenticated
+                and Player.objects.filter(user=request.user).exists()
+            ):
                 # Use the reverse relationship from player to user
                 self.player = request.user.player
             else:
@@ -339,9 +342,15 @@ class NilpointGameBasic(View):
             "nilpoint/new_player_character.jinja2#new_player_character",
         )
         message = None
-        if self.player is None:
+        if not request.user.is_authenticated:
+            message = (
+                "You need to have an account on this site to make player characters"
+            )
+        elif self.player is None:
             message = "Your account is not a player account"
-        if not self.game.allow_multiple_characters and len(self.player_characters) > 0:
+        elif (
+            not self.game.allow_multiple_characters and len(self.player_characters) > 0
+        ):
             message = "You can't have more than one player character for this game"
         if message is not None:
             return self.nilpoint_render(

@@ -21,7 +21,7 @@
         </p>
         <form action="{{ submit_url }}"
               method="post"
-              hx-post="{{ game.get_url }}?action=new_player_character"
+              hx-post="{{ game.get_dispatch_url }}?action=new_player_character"
               hx-target="#nilpoint-character-panel"
               hx-swap="inner"
               id="form-container">
