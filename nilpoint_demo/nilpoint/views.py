@@ -7,7 +7,6 @@ from .forms import NewPlayerCharacterForm
 from functools import wraps
 import json
 
-# TODO: deal with no game set, etc in dispatch function
 # TODO: decorators for GET only handlers, POST only or both?
 
 
@@ -56,7 +55,7 @@ class NilpointGameBasic(View):
             return self.game.get_player_characters(request.user, self.game)
         return None
 
-    def get_game_object(self, request, *args, **kwargs):
+    def _get_game_object(self, request, *args, **kwargs):
         """Return the generic game object associated with this request.
 
         By default, it looks for the nilpoint_slug in the request path.
@@ -118,23 +117,30 @@ class NilpointGameBasic(View):
 
             response = None
             if Player.objects.filter(user=request.user).exists():
+                # Use the reverse relationship from player to user
                 self.player = request.user.player
             else:
                 self.player = None
 
             try:
-                self.game = self.get_game_object(request, *args, **kwargs)
+                self.game = self._get_game_object(request, *args, **kwargs)
             except Game.DoesNotExist:
                 self.game = None
             except NilpointMissingSlugException:
                 self.game = None
 
+            # Now if there is both a game and a player, retrieve the
+            # list of player characters for that player and game
             if self.player is not None and self.game is not None:
                 self.player_characters = self.get_player_characters(
                     request, *args, **kwargs
                 )
 
-            # Check if the pc cookie is set and if it matches the game and player
+            # The pc cookie is used to track which player character is
+            # active for the player.
+
+            # Check if the pc cookie is set and if it matches the game
+            # and player
             pc_id = request.COOKIES.get("pc", None)
             if pc_id is not None:
                 try:
@@ -145,6 +151,9 @@ class NilpointGameBasic(View):
                         self.player_character = pc
                 except PlayerCharacter.DoesNotExist:
                     self.player_character = None
+
+            # Now all the player and game setup is done, we store the
+            # details about the current request itself
 
             self.action = request.GET.get("action", None)
             if self.action is None:
@@ -162,16 +171,17 @@ class NilpointGameBasic(View):
 
             # Any changes post handling
 
+            # If the player character has been unset, remove the cookie
             if self.player_character is None:
                 response.delete_cookie("pc")
 
             ##Deal with location
             if self.player_character:
+                # If there is no location set (new character), get the initial location from the game
                 if self.player_character.current_location is None:
                     self.player_character.current_location = (
                         self.game.get_initial_location()
                     )
-
                     self.player_character.save()
 
             return response
@@ -342,7 +352,7 @@ class NilpointGameBasic(View):
                 **kwargs,
             )
 
-        url = f"{self.game.get_url()}?action=new_player_character"
+        url = f"{self.game.get_dispatch_url()}?action=new_player_character"
         url = self._value_from_subclass_or_default("new_player_character_submit", url)
 
         if request.method == "GET":
@@ -406,7 +416,7 @@ class NilpointRootView(View):
 
 
 class NilpointGameDispatchView(View):
-    """Dispatch requests for Nilpointgames.
+    """Pass on requests for Nilpointgames to the game-level dispatch view.
 
     Combining the nilpoint_slug (identifies a unique instance of a game) and
     the game object _game_type (identifies the game uniquely) gives us
@@ -417,7 +427,8 @@ class NilpointGameDispatchView(View):
     and if the instance has the nilpoint_slug 'hello-world' then this
     identifies the instace of MyFirstGame.  The urls will then be
     expected to have the namespace 'myfirstgame' with the keyword arg
-    'nilpoint_slug' set to 'hello-world'. A game-level dispatcher should pick up the following url names:
+    'nilpoint_slug' set to 'hello-world'. A game-level dispatcher
+    should pick up the following url names:
 
      - dispatch (for example the name could be 'myfirstgame:dispatch'
        and the request will include the nilpoint_slug as a keyword
@@ -436,5 +447,5 @@ class NilpointGameDispatchView(View):
             return HttpResponseNotFound(
                 f"We don't seem to have a game usingthe slig '{slug}'!"
             )
-        redir = redirect(game.get_url())
+        redir = redirect(game.get_dispatch_url())
         return redir

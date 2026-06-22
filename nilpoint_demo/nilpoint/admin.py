@@ -16,7 +16,7 @@ class GameAdmin(admin.ModelAdmin):
         "_game_type",
         "instance_description",
         "nilpoint_slug",
-        "get_url",
+        "get_dispatch_url",
         "allow_multiple_characters",
     ]
 

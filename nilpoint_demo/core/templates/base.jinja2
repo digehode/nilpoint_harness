@@ -93,7 +93,7 @@
                             <ul>
                                 {% for game in nilpoint.games %}
                                     <li>
-                                        <a hx-get="{{ game.get_url }}?action=landing"
+                                        <a hx-get="{{ game.get_dispatch_url }}?action=landing"
                                            hx-target="#nilpoint-container"
                                            hx-push-url="{% url 'launch' nilpoint_slug=game.nilpoint_slug %}"
                                            href="#">{{ game.instance_name }} ({{ game.name }})</a>

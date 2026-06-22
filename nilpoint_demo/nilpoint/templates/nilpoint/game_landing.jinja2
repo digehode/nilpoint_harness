@@ -3,11 +3,11 @@
     <div id="nilpoint-game-container">
         <h1>You are playing {{ game.instance_name }}</h1>
         <div id="nilpoint-character-panel"
-             hx-get="{{ game.get_url }}?action=player_selection_panel"
+             hx-get="{{ game.get_dispatch_url }}?action=player_selection_panel"
              hx-trigger="load, player_character_changed from:body"
              hx-target="this">Loading...</div>
         <div id="nilpoint-scene"
-             hx-get="{{ game.get_url }}?action=get_location_graphic"
+             hx-get="{{ game.get_dispatch_url }}?action=get_location_graphic"
              hx-trigger="load, location_changed from:body, player_character_changed from:body"
              hx-target="this">Loading...</div>
         <div id="nilpoint-controls">

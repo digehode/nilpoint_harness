@@ -72,7 +72,8 @@ class Game(models.Model):
     def __str__(self):
         return f"{self.get_real_instance().name} - {self.instance_name}"
 
-    def get_url(self):
+    def get_dispatch_url(self):
+        """Get the dispatch URL for the game"""
         if self.nilpoint_slug is not None and self.nilpoint_slug != "":
             return reverse(
                 f"{self._game_type}:dispatch",
@@ -82,6 +83,10 @@ class Game(models.Model):
             return "#"
 
     def get_player_characters(self, user, game):
+        """Returns a list of player characters for the current user and current game.
+
+        If the user doesn't have a player object, returns an empty list.
+        """
         try:
             player = Player.objects.get(user=user)
             characters = PlayerCharacter.objects.filter(player=player, game=game).all()
@@ -90,7 +95,7 @@ class Game(models.Model):
             return []
 
     def get_initial_location(self):
-
+        """Return the initial location for the game, or None if there isn't one."""
         return self.locations.filter(initial=True).first()
 
 
