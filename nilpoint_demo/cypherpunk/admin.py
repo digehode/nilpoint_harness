@@ -12,6 +12,7 @@ class CypherpunkGameAdmin(admin.ModelAdmin):
 @admin.register(CypherpunkPC)
 class CypherpunkPCAdmin(admin.ModelAdmin):
     model = CypherpunkPC
+    list_display = ["handle", "player", "game"]
 
 
 @admin.register(Deck)

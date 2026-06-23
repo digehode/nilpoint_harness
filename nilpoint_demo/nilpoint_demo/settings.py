@@ -170,4 +170,6 @@ if DEBUG:
 
 
 # Nilpoint Settings
-NILPOINT_SETTINGS = {"PlayerCharacter": "cypherpunk.CypherpunkPC"}
+NILPOINT_SETTINGS = {
+    "archetypes": {"cypherpunkgame": {"PlayerCharacter": "cypherpunk.CypherpunkPC"}}
+}

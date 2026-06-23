@@ -379,7 +379,9 @@ class NilpointGameBasic(View):
             form.game = self.game
 
             if form.is_valid():
-                new_player_character = get_model("PlayerCharacter").objects.create(
+                new_player_character = get_model(
+                    self.game._game_type, "PlayerCharacter"
+                ).objects.create(
                     player=self.player,
                     game=self.game,
                     handle=form.cleaned_data.get("handle"),

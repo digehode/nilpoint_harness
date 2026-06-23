@@ -11,14 +11,22 @@ from .nilpoint_settings import nilpoint_settings
 # TODO: move to using InheritanceManager in game instead of custom downcast functions?
 
 
-def get_model(archetype):
+def get_model(game, archetype):
+    """Uses nillpoint_settings to return the appropriate class for the
+    archetype, or the default if none has been set in settings.py.
+
+    An archetype is the default Nilpoint class for things like
+    PlayerCharacter. For a game built upon Nilpoint, there are likely
+    to be classes that need to be customised through inheritence. To
+    ensure the instances are created with the right type, the
+    archetype can be substituted in settings.py.
+    """
+
     # Get the string configuration (e.g., 'my_other_app.MyModel')
-    model_string = nilpoint_settings.get(archetype)
-    print(f"Got {model_string}")
+    model_string = nilpoint_settings.get_archetype(game, archetype)
     # Dynamically resolve it to the actual Python class
     # This is safe to call now because the app registry is fully loaded at runtime
     ConfiguredModel = apps.get_model(model_string, require_ready=True)
-    print(f"Got {ConfiguredModel}")
     return ConfiguredModel
 
 
