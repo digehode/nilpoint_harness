@@ -1,0 +1,8 @@
+{% load static i18n %}
+<div class="cyperpunk-module"
+     style="background-image: url('{% static module.background_image %}');
+            background-size: cover;
+            background-position: center">
+    {% block module-content %}
+    {% endblock module-content %}
+</div>

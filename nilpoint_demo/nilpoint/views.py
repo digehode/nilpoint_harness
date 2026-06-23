@@ -9,6 +9,7 @@ import json
 from .models import get_model
 
 # TODO: decorators for GET only handlers, POST only or both?
+# TODO: create "requires player character" decorator for reuse in game views
 
 
 class HtmxTriggerResponse(HttpResponse):
@@ -148,7 +149,7 @@ class NilpointGameBasic(View):
             pc_id = request.COOKIES.get("pc", None)
             if pc_id is not None:
                 try:
-                    pc = PlayerCharacter.objects.get(id=pc_id)
+                    pc = PlayerCharacter.objects.get_subclass(id=pc_id)
                     if pc.game != self.game or pc.player != self.player:
                         self.player_character = None
                     else:
@@ -204,7 +205,7 @@ class NilpointGameBasic(View):
 
         else:
             try:
-                pc = PlayerCharacter.objects.get(id=selected_pc)
+                pc = PlayerCharacter.objects.get_subclass(id=selected_pc)
 
             except PlayerCharacter.DoesNotExist:
                 return HttpResponse(
