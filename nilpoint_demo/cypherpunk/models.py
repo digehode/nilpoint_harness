@@ -1,5 +1,6 @@
 from django.db import models
 from nilpoint.models import Game, PlayerCharacter
+from model_utils.managers import InheritanceManager
 
 
 class CypherpunkGame(Game):
@@ -8,7 +9,16 @@ class CypherpunkGame(Game):
 
 
 class CypherpunkPC(PlayerCharacter):
-    pass
+    def save(self, *args, **kwargs):
+        # Check if it's a new instance (no ID yet)
+        is_new = self.pk is None
+
+        # Save A first so it gets a database ID
+        super().save(*args, **kwargs)
+
+        # Now that A is saved, create B
+        if is_new:
+            Deck.objects.create(player_character=self)
 
 
 class Deck(models.Model):
@@ -26,8 +36,9 @@ class Deck(models.Model):
 class Module(models.Model):
     """Superclass for specific modules"""
 
+    objects = InheritanceManager()
     background_image = "cypherpunk/modules/generic.png"
 
-    # game = models.ForeignKey(
-    #     Game, null=False, on_delete=models.CASCADE, related_name="locations"
-    # )
+    deck = models.ForeignKey(
+        Deck, null=False, on_delete=models.CASCADE, related_name="modules"
+    )

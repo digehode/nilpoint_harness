@@ -18,6 +18,7 @@ class CypherpunkPCAdmin(admin.ModelAdmin):
 @admin.register(Deck)
 class DeckAdmin(admin.ModelAdmin):
     model = Deck
+    list_display = ["id", "player_character"]
 
 
 @admin.register(Module)

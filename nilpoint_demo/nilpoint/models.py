@@ -211,3 +211,6 @@ class PlayerCharacter(models.Model):
         null=True,
         on_delete=models.SET_NULL,
     )
+
+    def __str__(self):
+        return f"PC({self.handle}) in {self.game.instance_name}"
