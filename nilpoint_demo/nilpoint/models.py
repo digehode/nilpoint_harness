@@ -78,6 +78,13 @@ class Game(models.Model):
         default=None,
     )
 
+    css = models.CharField(
+        max_length=100,
+        null=True,
+        blank=True,
+        help_text="Path for including game-specific css",
+    )
+
     # Game type holds the subclass to which this can be downcast
     _game_type = models.CharField(max_length=50, editable=False)
 

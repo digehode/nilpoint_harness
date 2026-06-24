@@ -31,7 +31,10 @@ class GameLaunchView(View):
                 raise Http404(f"There is no game using the slig '{slug}'")
         else:
             raise Http404("Not found.")
-        return render(request, "home.jinja2", {"launch_game": game})
+        context = {"launch_game": game}
+        if game.css is not None and len(game.css.strip()) > 0:
+            context["additional_css_link"] = game.css
+        return render(request, "home.jinja2", context)
 
 
 class HomeView(BaseView):

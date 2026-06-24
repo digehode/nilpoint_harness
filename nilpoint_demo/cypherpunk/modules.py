@@ -6,4 +6,4 @@ class HelpModule(Module):
 
     module_type = "Help Module"
     template = "cypherpunk/deck/help_module.jinja2"
-    pass
+    background_image = "cypherpunk/modules/help.png"

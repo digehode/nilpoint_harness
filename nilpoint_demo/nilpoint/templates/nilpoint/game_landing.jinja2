@@ -11,8 +11,13 @@
              hx-trigger="load, location_changed from:body, player_character_changed from:body"
              hx-target="this">Loading...</div>
         <div id="nilpoint-controls">
+            {# TODO: Pick up on location change - use signal #}
             <h1>{{ player_character.current_location.name }}</h1>
             <p>{{ player_character.current_location.description }}</p>
         </div>
     </div>
+    <div id="deck-debug"
+         hx-get="{{ game.get_dispatch_url }}?action=deck"
+         hx-target="this"
+         hx-trigger="load">testing deck</div>
 {% endpartialdef %}

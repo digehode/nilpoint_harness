@@ -25,7 +25,7 @@ urlpatterns = [
     path("nilpoint/", include("nilpoint.urls", namespace="nilpoint")),
     path(
         "cypherpunkgame/<slug:nilpoint_slug>",
-        include("cypherpunk.urls", namespace="cyperpunkgame"),
+        include("cypherpunk.urls", namespace="cypherpunkgame"),
     ),
 ]
 
