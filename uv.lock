@@ -39,6 +39,21 @@ wheels = [
 ]
 
 [[package]]
+name = "cypherpunk"
+version = "0.1.0"
+source = { editable = "../cypherpunk" }
+dependencies = [
+    { name = "django" },
+    { name = "nilpoint" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "django", specifier = ">=6.0.6" },
+    { name = "nilpoint" },
+]
+
+[[package]]
 name = "decorator"
 version = "5.3.1"
 source = { registry = "https://pypi.org/simple" }
@@ -212,16 +227,33 @@ wheels = [
 ]
 
 [[package]]
+name = "nilpoint"
+version = "0.1.0"
+source = { editable = "../nilpoint_core" }
+dependencies = [
+    { name = "django" },
+    { name = "django-model-utils" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "django", specifier = ">=6.0.6" },
+    { name = "django-model-utils", specifier = ">=5.0.0" },
+]
+
+[[package]]
 name = "nilpoint-demo"
 version = "0.1.0"
 source = { virtual = "." }
 dependencies = [
+    { name = "cypherpunk" },
     { name = "django" },
     { name = "django-environ" },
     { name = "django-extensions" },
     { name = "django-extras" },
     { name = "django-model-utils" },
     { name = "ipython" },
+    { name = "nilpoint" },
 ]
 
 [package.dev-dependencies]
@@ -233,12 +265,14 @@ dev = [
 
 [package.metadata]
 requires-dist = [
+    { name = "cypherpunk", editable = "../cypherpunk" },
     { name = "django", specifier = ">=6.0.6" },
     { name = "django-environ", specifier = ">=0.13.0" },
     { name = "django-extensions", specifier = ">=4.1" },
     { name = "django-extras", specifier = ">=0.3" },
     { name = "django-model-utils", specifier = ">=5.0.0" },
     { name = "ipython", specifier = ">=9.14.1" },
+    { name = "nilpoint", editable = "../nilpoint_core" },
 ]
 
 [package.metadata.requires-dev]

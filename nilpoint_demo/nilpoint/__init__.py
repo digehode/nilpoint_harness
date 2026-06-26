@@ -1,2 +1,0 @@
-class NilpointMissingSlugException(Exception):
-    pass

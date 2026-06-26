@@ -5,12 +5,14 @@ description = "Django Point and Click"
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
+    "cypherpunk",
     "django>=6.0.6",
     "django-environ>=0.13.0",
     "django-extensions>=4.1",
     "django-extras>=0.3",
     "django-model-utils>=5.0.0",
     "ipython>=9.14.1",
+    "nilpoint",
 ]
 
 # ==== black ====
@@ -29,6 +31,10 @@ known_first_party = [
 ]
 skip = ["venv/"]
 skip_glob = ["**/migrations/*.py"]
+
+[tool.uv.sources]
+nilpoint = { path = "../nilpoint_core", editable = true }
+cypherpunk = { path = "../cypherpunk", editable = true }
 
 [dependency-groups]
 dev = [

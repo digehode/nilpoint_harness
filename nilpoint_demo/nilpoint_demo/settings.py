@@ -35,8 +35,8 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
-    "nilpoint",
     "core",
+    "nilpoint",
     "cypherpunk",
     "django.contrib.admin",
     "django.contrib.auth",
