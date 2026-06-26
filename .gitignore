@@ -14,3 +14,5 @@ wheels/
 /package.json
 /nilpoint_demo/db.sqlite3
 /nilpoint_demo/var/
+/nilpoint_harness/db.sqlite3
+/nilpoint_harness/var/
