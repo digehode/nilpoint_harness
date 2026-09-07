@@ -171,5 +171,8 @@ if DEBUG:
 
 # Nilpoint Settings
 NILPOINT_SETTINGS = {
-    "archetypes": {"cypherpunkgame": {"PlayerCharacter": "cypherpunk.CypherpunkPC"}}
+    # For each game type, specify which Nilpoint classes are replaced by game-specific subclasses
+    "archetypes": {"cypherpunkgame": {"PlayerCharacter": "cypherpunk.CypherpunkPC"}},
+    # List of games as content types, matching the archetypes keys
+    "games": ["cypherpunkgame"],
 }
