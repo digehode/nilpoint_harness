@@ -62,18 +62,18 @@
             <script defer src="{% static 'js/base.js' %}"></script>
             {% if debug %}
                 <script>
-			console.log("Setting up debug mode/debug toolbar htmx stuff");
-    if (typeof window.htmx !== "undefined") {
-        htmx.on("htmx:afterSettle", function(detail) {
-            if (
-                typeof window.djdt !== "undefined"
-                && detail.target instanceof HTMLBodyElement
-            ) {
-                djdt.show_toolbar();
-            }
-        });
-			}
-						console.log("Debug mode/debug toolbar htmx stuff done.");
+		  console.log("Setting up debug mode/debug toolbar htmx stuff");
+		  if (typeof window.htmx !== "undefined") {
+		  htmx.on("htmx:afterSettle", function(detail) {
+		  if (
+                  typeof window.djdt !== "undefined"
+                  && detail.target instanceof HTMLBodyElement
+		  ) {
+                  djdt.show_toolbar();
+		  }
+		  });
+		  }
+		  console.log("Debug mode/debug toolbar htmx stuff done.");
                 </script>
             {% endif %}
         {% endblock javascript %}
@@ -85,7 +85,7 @@
         <main class="container">
             <nav id="site-nav">
                 <ul>
-                    <li><strong>Nilpoint</strong></li>
+                    <li><strong><i class="fa-nilpoint"></i> Nilpoint</strong></li>
                 </ul>
                 {% if debug %}
                     <ul>
@@ -121,7 +121,10 @@
                             <ul>
                                 {% if user.is_authenticated %}
                                     {% if user.is_staff %}
-                                        <li><a href="{% url 'admin:index' %}"><i class="fa-solid fa-toolbox"></i>Admin Console</a></li>
+                                        <li><a href="{% url 'admin:index' %}"><i class="fa-solid fa-toolbox"></i>Django Admin Console</a></li>
+                                        <li><a href="#"
+   hx-get="{% url 'nilpoint:admin' %}"
+   hx-target="#nilpoint-container"><i class="fa-nilpoint"></i>Nilpoint Admin</a></li>
                                     {% endif %}
                                     <li>
                                         <a href="#"
