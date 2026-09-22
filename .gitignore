@@ -16,3 +16,4 @@ wheels/
 /nilpoint_demo/var/
 /nilpoint_harness/db.sqlite3
 /nilpoint_harness/var/
+/nilpoint_harness/.coverage
